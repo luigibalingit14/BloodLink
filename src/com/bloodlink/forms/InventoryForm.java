@@ -28,6 +28,16 @@ public class InventoryForm extends javax.swing.JFrame {
             pantakipPanel.setVisible(true);  // Staff sees overlay
         }
         
+
+    
+    // ✅ ADD THIS: HIDE BUTTONS DIRECTLY FOR STAFF
+    if (UserSession.currentRole != null && 
+        UserSession.currentRole.equalsIgnoreCase("Staff")) {
+        btnReports.setVisible(false);
+        btnSettings.setVisible(false);
+    }
+    
+        
         setupInventorySidebar();
         setupHeader();
         loadInventory();
@@ -262,6 +272,7 @@ public class InventoryForm extends javax.swing.JFrame {
                 "Blood Group", "Available Units", "Status"
             }
         ));
+        tblInventory.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jScrollPane1.setViewportView(tblInventory);
 
         glassPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 760, 380));

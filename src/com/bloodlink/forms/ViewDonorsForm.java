@@ -467,11 +467,11 @@ public void dispose() {
                 return types [columnIndex];
             }
         });
-        tblDonors.setFont(new java.awt.Font("Segoe UI", 0, 8)); // NOI18N
+        tblDonors.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tblDonors.setSelectionBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setViewportView(tblDonors);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 252, 790, 370));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 252, 870, 370));
 
         glassPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -494,6 +494,7 @@ public void dispose() {
         glassPanel3.add(lblTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, -1, -1));
 
         btnDelete.setText("Delete ");
+        btnDelete.addActionListener(this::btnDeleteActionPerformed);
         glassPanel3.add(btnDelete, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 540, -1, -1));
 
         logoLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconback.png"))); // NOI18N
@@ -506,7 +507,7 @@ public void dispose() {
         btnBack.addActionListener(this::btnBackActionPerformed);
         glassPanel3.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 530, 180, 40));
 
-        getContentPane().add(glassPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 110, 810, 580));
+        getContentPane().add(glassPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 110, 890, 580));
 
         glassPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -520,7 +521,7 @@ public void dispose() {
         lblDateTime.setText("TIME");
         glassPanel1.add(lblDateTime, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 40, 170, 25));
 
-        getContentPane().add(glassPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 810, 100));
+        getContentPane().add(glassPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 0, 890, 100));
 
         SidePanel.setPreferredSize(new java.awt.Dimension(250, 700));
         SidePanel.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -617,7 +618,7 @@ public void dispose() {
         getContentPane().add(SidePanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         MainPanel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Screenshot 2026-05-06 232929.png"))); // NOI18N
-        getContentPane().add(MainPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1080, 700));
+        getContentPane().add(MainPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1160, 700));
 
         pack();
         setLocationRelativeTo(null);
@@ -644,6 +645,10 @@ public void dispose() {
         this.dispose();
         new DashboardForm().setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+      deleteDonor();
+    }//GEN-LAST:event_btnDeleteActionPerformed
 
     /**
      * @param args the command line arguments

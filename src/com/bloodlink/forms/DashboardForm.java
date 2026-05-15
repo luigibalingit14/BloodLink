@@ -1,11 +1,14 @@
 package com.bloodlink.forms;
 import com.bloodlink.utils.UserSession;
-import CustomComponents.SidebarButton;
-import CustomComponents.GlassPanel;
-import CustomComponents.RoleBadge;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import com.bloodlink.db.DBConnection;
 import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import java.sql.Connection;
+
+
 
 
 public class DashboardForm extends javax.swing.JFrame {
@@ -45,6 +48,85 @@ public DashboardForm() {
     
     
 }
+
+/**
+ * Load summary statistics for dashboard overview
+ */
+/**
+ * Load summary statistics for dashboard overview
+ */
+private void loadDashboardStats() {
+    try {
+        Connection con = DBConnection.connect();
+        if (con == null) return;
+        
+        // 1. Total Donors Count ✅ FIXED
+        String sql1 = "SELECT COUNT(*) as total FROM donors";
+        PreparedStatement pst1 = con.prepareStatement(sql1);
+        ResultSet rs1 = pst1.executeQuery();
+        if (rs1.next() && lblValueDonors != null) {  // ✅ Check null + correct label
+            lblValueDonors.setText(String.valueOf(rs1.getInt("total")));
+        }
+        rs1.close(); pst1.close();
+        
+        // 2. Total Blood Units
+        String sql2 = "SELECT SUM(available_units) as total FROM blood_inventory";
+        PreparedStatement pst2 = con.prepareStatement(sql2);
+        ResultSet rs2 = pst2.executeQuery();
+        if (rs2.next() && lblValueUnits != null) {
+            int total = rs2.getInt("total");
+            lblValueUnits.setText(String.valueOf(total > 0 ? total : 0));
+        }
+        rs2.close(); pst2.close();
+        
+        // 3. Critical Blood Types (< 5 units)
+        String sql3 = "SELECT COUNT(*) as critical FROM blood_inventory WHERE available_units < 5";
+        PreparedStatement pst3 = con.prepareStatement(sql3);
+        ResultSet rs3 = pst3.executeQuery();
+        if (rs3.next() && lblValueCritical != null) {
+            int critical = rs3.getInt("critical");
+            lblValueCritical.setText(String.valueOf(critical));
+            
+            if (critical > 0) {
+                lblValueCritical.setForeground(new Color(220, 20, 60));
+                if (lblSubtitleCritical != null) lblSubtitleCritical.setText("Need Attention!");
+            } else {
+                lblValueCritical.setForeground(new Color(59, 130, 246));
+                if (lblSubtitleCritical != null) lblSubtitleCritical.setText("All Good!");
+            }
+        }
+        rs3.close(); pst3.close();
+        
+        // 4. Recent Donations (Last 7 Days)
+        String sql4 = "SELECT COUNT(*) as recent FROM donors WHERE donation_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+        PreparedStatement pst4 = con.prepareStatement(sql4);
+        ResultSet rs4 = pst4.executeQuery();
+        if (rs4.next() && lblValueRecent != null) {
+            lblValueRecent.setText(String.valueOf(rs4.getInt("recent")));
+        }
+        rs4.close(); pst4.close();
+        
+        con.close();
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error loading stats: " + e.getMessage());
+        
+        // ✅ Fallback values - LAHAT NG LABELS
+        if (lblValueDonors != null) lblValueDonors.setText("0");
+        if (lblValueUnits != null) lblValueUnits.setText("0");
+        if (lblValueCritical != null) lblValueCritical.setText("0");
+        if (lblValueRecent != null) lblValueRecent.setText("0");
+    }
+}
+
+
+/**
+ * Refresh stats (call after donor registration/deletion)
+ */
+private void refreshStats() {
+    loadDashboardStats();
+}
+
 
 
 
@@ -138,6 +220,7 @@ public void loadUserData(String name, String role) {
     
     // 4. Start clock
     startClock();
+    loadDashboardStats();
 }
     
 
@@ -225,6 +308,25 @@ public void dispose() {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        glassPanel7 = new customcontrols.GlassPanel();
+        logoLabel11 = new customcontrols.LogoLabel();
+        lblValueUnits = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        glassPanel6 = new customcontrols.GlassPanel();
+        lblValueRecent = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        logoLabel13 = new customcontrols.LogoLabel();
+        redGlassPanel1 = new customcontrols.RedGlassPanel();
+        lblSubtitleCritical = new javax.swing.JLabel();
+        logoLabel12 = new customcontrols.LogoLabel();
+        lblValueCritical = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        glassPanel3 = new customcontrols.GlassPanel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        lblValueDonors = new javax.swing.JLabel();
+        logoLabel14 = new customcontrols.LogoLabel();
         glassPanel1 = new customcontrols.GlassPanel();
         lblWelcome = new javax.swing.JLabel();
         lblRoleBadge = new CustomComponents.RoleBadge();
@@ -249,10 +351,92 @@ public void dispose() {
         glassPanel2 = new customcontrols.GlassPanel();
         logoLabel9 = new customcontrols.LogoLabel();
         MainPanel = new customcontrols.ModernLabel();
+        glassPanel4 = new customcontrols.GlassPanel();
 
         setTitle("BloodLink - Dashboard");
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        glassPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        logoLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/blood drop.png"))); // NOI18N
+        logoLabel11.setText("logoLabel10");
+        glassPanel7.add(logoLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, 350, 140));
+
+        lblValueUnits.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
+        lblValueUnits.setForeground(new java.awt.Color(255, 255, 255));
+        lblValueUnits.setText("no.");
+        glassPanel7.add(lblValueUnits, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 90, 110));
+
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Blood Inventory");
+        glassPanel7.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 140, -1));
+
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Units");
+        glassPanel7.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 77, -1));
+
+        getContentPane().add(glassPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 130, 350, 190));
+
+        glassPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblValueRecent.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
+        lblValueRecent.setForeground(new java.awt.Color(255, 255, 255));
+        lblValueRecent.setText("no.");
+        glassPanel6.add(lblValueRecent, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 90, 110));
+
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText("Recent Donations");
+        glassPanel6.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 100, -1));
+
+        logoLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/backdropicon.png"))); // NOI18N
+        logoLabel13.setText("logoLabel10");
+        glassPanel6.add(logoLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, 350, 140));
+
+        getContentPane().add(glassPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 350, 350, 190));
+
+        redGlassPanel1.setPreferredSize(new java.awt.Dimension(350, 190));
+        redGlassPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblSubtitleCritical.setForeground(new java.awt.Color(255, 255, 255));
+        lblSubtitleCritical.setText("jLabel7");
+        redGlassPanel1.add(lblSubtitleCritical, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 120, -1));
+
+        logoLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/warning 2.png"))); // NOI18N
+        logoLabel12.setText("logoLabel10");
+        redGlassPanel1.add(logoLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 70, 350, 140));
+
+        lblValueCritical.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
+        lblValueCritical.setForeground(new java.awt.Color(255, 255, 255));
+        lblValueCritical.setText("no.");
+        redGlassPanel1.add(lblValueCritical, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 90, 110));
+
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Low Stock Alert");
+        redGlassPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 100, -1));
+
+        getContentPane().add(redGlassPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 350, 340, 190));
+
+        glassPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Total Donors");
+        glassPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 21, 77, -1));
+
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setText("Registered");
+        glassPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 77, -1));
+
+        lblValueDonors.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
+        lblValueDonors.setForeground(new java.awt.Color(255, 255, 255));
+        lblValueDonors.setText("no.");
+        glassPanel3.add(lblValueDonors, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 90, 110));
+
+        logoLabel14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/donation icon.png"))); // NOI18N
+        logoLabel14.setText("logoLabel10");
+        glassPanel3.add(logoLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 70, 350, 140));
+
+        getContentPane().add(glassPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 130, 350, 190));
 
         glassPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -365,6 +549,19 @@ public void dispose() {
         MainPanel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Screenshot 2026-05-06 232929.png"))); // NOI18N
         getContentPane().add(MainPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1000, 700));
 
+        javax.swing.GroupLayout glassPanel4Layout = new javax.swing.GroupLayout(glassPanel4);
+        glassPanel4.setLayout(glassPanel4Layout);
+        glassPanel4Layout.setHorizontalGroup(
+            glassPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 250, Short.MAX_VALUE)
+        );
+        glassPanel4Layout.setVerticalGroup(
+            glassPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 110, Short.MAX_VALUE)
+        );
+
+        getContentPane().add(glassPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(670, 130, 250, 110));
+
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
@@ -394,10 +591,29 @@ public void dispose() {
     private CustomComponents.SidebarButton btnViewDonors;
     private customcontrols.GlassPanel glassPanel1;
     private customcontrols.GlassPanel glassPanel2;
+    private customcontrols.GlassPanel glassPanel3;
+    private customcontrols.GlassPanel glassPanel4;
+    private customcontrols.GlassPanel glassPanel6;
+    private customcontrols.GlassPanel glassPanel7;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel lblDateTime;
     private CustomComponents.RoleBadge lblRoleBadge;
+    private javax.swing.JLabel lblSubtitleCritical;
+    private javax.swing.JLabel lblValueCritical;
+    private javax.swing.JLabel lblValueDonors;
+    private javax.swing.JLabel lblValueRecent;
+    private javax.swing.JLabel lblValueUnits;
     private javax.swing.JLabel lblWelcome;
     private customcontrols.LogoLabel logoLabel1;
+    private customcontrols.LogoLabel logoLabel11;
+    private customcontrols.LogoLabel logoLabel12;
+    private customcontrols.LogoLabel logoLabel13;
+    private customcontrols.LogoLabel logoLabel14;
     private customcontrols.LogoLabel logoLabel2;
     private customcontrols.LogoLabel logoLabel3;
     private customcontrols.LogoLabel logoLabel4;
@@ -407,5 +623,6 @@ public void dispose() {
     private customcontrols.LogoLabel logoLabel8;
     private customcontrols.LogoLabel logoLabel9;
     private javax.swing.JPanel pantakipPanel;
+    private customcontrols.RedGlassPanel redGlassPanel1;
     // End of variables declaration//GEN-END:variables
 }
