@@ -283,13 +283,13 @@ public class InventoryForm extends javax.swing.JFrame {
 
         logoLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconback.png"))); // NOI18N
         logoLabel10.setText("logoLabel10");
-        glassPanel3.add(logoLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 520, 30, 40));
+        glassPanel3.add(logoLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 520, 30, 40));
 
         btnBack.setForeground(new java.awt.Color(255, 255, 255));
         btnBack.setText("       Back to Dashboard");
         btnBack.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         btnBack.addActionListener(this::btnBackActionPerformed);
-        glassPanel3.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 520, 180, 40));
+        glassPanel3.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 520, 180, 40));
 
         getContentPane().add(glassPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 110, 810, 580));
 

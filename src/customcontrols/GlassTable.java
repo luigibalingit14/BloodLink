@@ -51,7 +51,7 @@ public class GlassTable extends JTable {
                 JLabel header = new JLabel(value != null ? value.toString() : "");
                 header.setOpaque(false); // SIGURADONG TRANSPARENT
                 header.setBackground(new Color(0, 0, 0, 0));
-                header.setForeground(Color.WHITE); // Kulay ng text
+                header.setForeground(Color.BLACK); // Kulay ng text
                 header.setFont(new Font("SansSerif", Font.BOLD, 14));
                 
                 // Styling sa ilalim ng header text
