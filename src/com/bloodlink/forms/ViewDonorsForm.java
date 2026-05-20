@@ -1,3 +1,45 @@
+/*
+ * =============================================================================
+ * FILE: ViewDonorsForm.java
+ * PARA KAY: DUYANEN (Display & Search) at SORCOSO (Update & Delete)
+ * LAYUNIN: Para makita, hanapin, i-edit, at burahin ang donor records.
+ *          Ito ang READ, UPDATE, at DELETE operations sa CRUD.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang ViewDonorsForm bilang isang Excel spreadsheet na laging updated.
+ * Makikita mo lahat ng naka-register na donors.
+ * May search bar para mabilis mahanap ang isang tao.
+ * Pwede mong i-edit ang mali na impormasyon (Update).
+ * Pwede mo ring burahin ang record kapag kailangan (Delete).
+ *
+ * APAT NA PANGUNAHING OPERATIONS DITO (CRUD):
+ *
+ * [DUYANEN] READ - loadDonorsToTable()
+ *   SELECT id, name, age, blood_group, phone, address, donation_date
+ *   FROM donors ORDER BY id DESC
+ *   → Kunin lahat ng donors, pinaka-bago muna
+ *
+ * [DUYANEN] SEARCH - searchDonors()
+ *   SELECT * FROM donors WHERE name LIKE ? OR blood_group LIKE ?
+ *   → Hanapin ang donors gamit ang keyword
+ *
+ * [SORCOSO] UPDATE - updateDonor()
+ *   UPDATE donors SET name=?, age=?, blood_group=?, phone=?, address=?
+ *   WHERE id=?
+ *   → I-edit ang impormasyon ng isang donor
+ *
+ * [SORCOSO] DELETE - deleteDonor()
+ *   DELETE FROM donors WHERE id = ?
+ *   → Burahin ang isang donor record
+ *
+ * PAANO GUMAGANA ANG JTABLE:
+ * - DefaultTableModel = ang "data container" ng JTable
+ * - model.setRowCount(0) = linisin muna ang table bago mag-load ng bago
+ * - model.addRow(row) = magdagdag ng isang linya sa table
+ * - tblDonors.getSelectedRow() = alamin kung aling row ang pinili ng user
+ * =============================================================================
+ */
 package com.bloodlink.forms;
 import com.bloodlink.utils.UserSession;  
 import CustomComponents.SidebarButton;
@@ -175,15 +217,19 @@ private void setupViewDonorsSidebar() {
     
 
 private void loadDonorsToTable() {
+    // [DEFENSE] Kukunin yung table model para mailagay ang data sa JTable
     DefaultTableModel model = (DefaultTableModel) tblDonors.getModel();
-    model.setRowCount(0); // Clear existing rows
+    model.setRowCount(0); // [DEFENSE] Clear muna ang laman ng table bago mag-load ng bago
     
     try {
+        // [DEFENSE] Database Integration - DISPLAYING ALL CUSTOMERS
         java.sql.Connection con = com.bloodlink.db.DBConnection.connect();
+        // [DEFENSE] SQL Code para kunin lahat ng records ng donors mula sa database
         String sql = "SELECT id, name, age, blood_group, phone, address, donation_date FROM donors ORDER BY id DESC";
         java.sql.PreparedStatement pst = con.prepareStatement(sql);
-        java.sql.ResultSet rs = pst.executeQuery();
+        java.sql.ResultSet rs = pst.executeQuery(); // executeQuery kasi kukuha tayo ng data
         
+        // [DEFENSE] Iloloop natin yung bawat row na nakuha sa database
         while (rs.next()) {
             Object[] row = {
                 rs.getInt("id"),
@@ -194,6 +240,7 @@ private void loadDonorsToTable() {
                 rs.getString("address"),
                 rs.getString("donation_date")
             };
+            // [DEFENSE] Ilalagay ang row data sa ating JTable
             model.addRow(row);
         }
         
@@ -210,14 +257,18 @@ private void loadDonorsToTable() {
 
 
 private void searchDonors() {
+    // [DEFENSE] Kukunin ang tinype ng user sa Search Box
     String keyword = txtSearch.getText().trim();
     DefaultTableModel model = (DefaultTableModel) tblDonors.getModel();
-    model.setRowCount(0);
+    model.setRowCount(0); // [DEFENSE] Clear muna ulit
     
     try {
+        // [DEFENSE] Database Integration - SEARCHING CUSTOMER / FILTERING
         java.sql.Connection con = com.bloodlink.db.DBConnection.connect();
+        // [DEFENSE] SQL Code na naghahanap ng name O blood_group na kahawig sa keyword (LIKE)
         String sql = "SELECT * FROM donors WHERE name LIKE ? OR blood_group LIKE ? ORDER BY id DESC";
         java.sql.PreparedStatement pst = con.prepareStatement(sql);
+        // [DEFENSE] Yung "%" ibig sabihin kahit anong text bago at pagkatapos ng keyword
         pst.setString(1, "%" + keyword + "%");
         pst.setString(2, "%" + keyword + "%");
         
@@ -248,28 +299,35 @@ private void searchDonors() {
 
 
 private void deleteDonor() {
+    // [DEFENSE] Inaalam kung anong row sa table ang clinick/pinili ng user
     int selectedRow = tblDonors.getSelectedRow();
-    if (selectedRow == -1) {
+    if (selectedRow == -1) { // [DEFENSE] Kung walang na-select, magpapakita ng error
         JOptionPane.showMessageDialog(this, "⚠️ Please select a donor to delete!", 
             "No Selection", JOptionPane.WARNING_MESSAGE);
         return;
     }
     
+    // [DEFENSE] Kinukuha yung ID at Name ng napiling row mula sa table
     int id = Integer.parseInt(tblDonors.getValueAt(selectedRow, 0).toString());
     String name = tblDonors.getValueAt(selectedRow, 1).toString();
     
+    // [DEFENSE] Tatanungin ulit kung sigurado ba siyang buburahin
     int confirm = JOptionPane.showConfirmDialog(this, 
         "Delete donor: " + name + "?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
     
     if (confirm == JOptionPane.YES_OPTION) {
         try {
+            // [DEFENSE] Database Integration - DELETING CUSTOMER
             java.sql.Connection con = com.bloodlink.db.DBConnection.connect();
+            // [DEFENSE] SQL Code para magbura ng record base sa ID
             String sql = "DELETE FROM donors WHERE id = ?";
             java.sql.PreparedStatement pst = con.prepareStatement(sql);
             pst.setInt(1, id);
             
+            // [DEFENSE] ExecuteUpdate() kasi may binabago tayo sa database (Delete)
             if (pst.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(this, "✅ Donor deleted!");
+                // [DEFENSE] Pagkabura, i-refresh ang table natin
                 loadDonorsToTable();
             }
             pst.close();

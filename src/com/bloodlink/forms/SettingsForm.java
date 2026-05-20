@@ -1,3 +1,45 @@
+/*
+ * =============================================================================
+ * FILE: SettingsForm.java
+ * PARA KAY: NASOL
+ * LAYUNIN: Para sa Admin-only System Settings.
+ *          Dito pinapamahalaan ang mga user accounts at password ng sistema.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang SettingsForm bilang ang "Control Room" ng blood bank.
+ * Para lang ito sa pinuno (Admin) - hindi lahat ng empleyado (Staff) 
+ * ay pwedeng pumasok dito.
+ * Dito maaaring:
+ *  1. Makita kung sino-sino ang may access sa sistema
+ *  2. Mag-add ng bagong account para sa bagong empleyado
+ *  3. Mag-delete ng account ng empleyado na hindi na nagtatrabaho
+ *  4. Magpalit ng password para sa seguridad
+ *
+ * MAY TATLONG TABS:
+ * [Tab 1] User Management - Para sa mga accounts
+ *   READ:   SELECT id, username, full_name, role FROM users
+ *   ADD:    INSERT INTO users (username, password, full_name, role) VALUES (?,?,?,?)
+ *   DELETE: DELETE FROM users WHERE id = ?
+ *
+ * [Tab 2] Account Security - Para sa password change
+ *   VERIFY: SELECT password FROM users WHERE id=? AND password=?
+ *   UPDATE: UPDATE users SET password=? WHERE id=?
+ *
+ * [Tab 3] System Info - Para sa system status
+ *   Nagpapakita ng version, current user, at database connection status
+ *
+ * SECURITY FEATURE:
+ *   if (!"Admin".equalsIgnoreCase(UserSession.currentRole))
+ *   → Kapag hindi Admin ang nag-access, agad itong isasara at
+ *     ililipat pabalik sa Dashboard. Staff ay HINDI maaaring pumasok!
+ *
+ * PROTEKSYON SA MAIN ADMIN:
+ *   if ("admin".equalsIgnoreCase(uname)) { return; }
+ *   → Hindi maaaring burahin ang pangunahing "admin" account
+ *     para hindi mawala ang access sa sistema.
+ * =============================================================================
+ */
 package com.bloodlink.forms;
 
 import com.bloodlink.utils.UserSession;
@@ -136,8 +178,11 @@ private void setupGlassStyling() {
 
     // ==================== USER MANAGEMENT ====================
     private void loadUsersTable() {
+        // [DEFENSE] Ihanda ang table para sa listahan ng mga users
         DefaultTableModel model = (DefaultTableModel) tblUsers.getModel();
         model.setRowCount(0);
+        
+        // [DEFENSE] Kunin sa database ang lahat ng users para makita ng Admin kung sino-sino ang may access
         try (Connection con = DBConnection.connect();
              PreparedStatement pst = con.prepareStatement("SELECT id, username, full_name, role FROM users ORDER BY id");
              ResultSet rs = pst.executeQuery()) {
@@ -150,11 +195,13 @@ private void setupGlassStyling() {
     }
 
     private void addUser() {
+        // [DEFENSE] Hihingi ng impormasyon (Username, Password, Name, Role) gamit ang mga popup boxes
         String user = JOptionPane.showInputDialog(this, "Username:");
         String pass = JOptionPane.showInputDialog(this, "Password:");
         String name = JOptionPane.showInputDialog(this, "Full Name:");
         String role = (String) JOptionPane.showInputDialog(this, "Role:", "Select", JOptionPane.QUESTION_MESSAGE, null, new String[]{"Admin", "Staff"}, "Staff");
         
+        // [DEFENSE] Kung kumpleto ang ibinigay na info, isesave ito sa database
         if (user != null && pass != null && name != null && role != null && !user.trim().isEmpty()) {
             try (Connection con = DBConnection.connect();
                  PreparedStatement pst = con.prepareStatement("INSERT INTO users (username, password, full_name, role) VALUES (?, ?, ?, ?)")) {
@@ -164,6 +211,7 @@ private void setupGlassStyling() {
                 pst.setString(4, role);
                 pst.executeUpdate();
                 JOptionPane.showMessageDialog(this, "✅ User added successfully!");
+                // [DEFENSE] I-refresh ang table pagkatapos mag-add ng user
                 loadUsersTable();
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(this, "❌ Failed: " + e.getMessage());
@@ -172,15 +220,18 @@ private void setupGlassStyling() {
     }
 
     private void deleteUser() {
+        // [DEFENSE] Alamin kung aling row sa table ang pinindot para i-delete
         int row = tblUsers.getSelectedRow();
         if (row == -1) { JOptionPane.showMessageDialog(this, "⚠️ Select a user first!"); return; }
         int id = (int) tblUsers.getValueAt(row, 0);
         String uname = tblUsers.getValueAt(row, 1).toString();
         
+        // [DEFENSE] Pag-iingat: Hindi pwedeng burahin ang mismong "admin" na account
         if ("admin".equalsIgnoreCase(uname)) {
             JOptionPane.showMessageDialog(this, "⛔ Cannot delete main admin account!"); return;
         }
         
+        // [DEFENSE] Hihingi ng confirmation, kapag YES, buburahin sa database gamit ang DELETE statement
         if (JOptionPane.showConfirmDialog(this, "Delete user '" + uname + "'?", "Confirm Delete", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             try (Connection con = DBConnection.connect();
                  PreparedStatement pst = con.prepareStatement("DELETE FROM users WHERE id = ?")) {
@@ -196,10 +247,12 @@ private void setupGlassStyling() {
 
     // ==================== CHANGE PASSWORD ====================
     private void updatePassword() {
+        // [DEFENSE] Kukunin yung mga tinype na passwords
         String oldP = new String(txtOldPass.getPassword()).trim();
         String newP = new String(txtNewPass.getPassword()).trim();
         String confP = new String(txtConfirmPass.getPassword()).trim();
         
+        // [DEFENSE] Basic Validations
         if (oldP.isEmpty() || newP.isEmpty() || confP.isEmpty()) {
             JOptionPane.showMessageDialog(this, "⚠️ Fill all fields!"); return;
         }
@@ -211,6 +264,7 @@ private void setupGlassStyling() {
         }
         
         try (Connection con = DBConnection.connect();
+             // [DEFENSE] I-che-check muna kung tama ba ang lumang password
              PreparedStatement verify = con.prepareStatement("SELECT password FROM users WHERE id = ? AND password = ?")) {
             verify.setInt(1, getCurrentUserId());
             verify.setString(2, oldP);
@@ -219,6 +273,7 @@ private void setupGlassStyling() {
                 JOptionPane.showMessageDialog(this, "❌ Incorrect current password!"); return;
             }
             
+            // [DEFENSE] Kapag tama, i-a-update na (UPDATE statement) yung password sa database
             try (PreparedStatement update = con.prepareStatement("UPDATE users SET password = ? WHERE id = ?")) {
                 update.setString(1, newP);
                 update.setInt(2, getCurrentUserId());

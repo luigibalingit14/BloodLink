@@ -1,3 +1,50 @@
+/*
+ * =============================================================================
+ * FILE: ReportsForm.java
+ * PARA KAY: BALINGIT
+ * LAYUNIN: Para makita ang mga analytical reports at ma-export ang data.
+ *          Nagpapakita ng monthly donation trends at blood distribution summary.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang ReportsForm bilang isang report card ng blood bank.
+ * Tulad ng grade report na nagpapakita ng lahat ng subjects at grades,
+ * ang ReportsForm ay nagpapakita ng dalawang ulat:
+ * 1. Kung ilang nagdonate bawat buwan (Donation Trends)
+ * 2. Kung ano ang estado ng bawat blood type (Blood Distribution)
+ *
+ * Bukod doon, pwede ring i-export ang data bilang CSV file -
+ * isang format na nabubuksan sa Microsoft Excel o Google Sheets.
+ *
+ * DALAWANG TALAHANAYAN (Tables) ANG IPINAPAKITA:
+ *
+ * TABLE 1 - Donation Trends (tblTrends):
+ *   SELECT MONTHNAME(donation_date), YEAR(donation_date), COUNT(*)
+ *   FROM donors
+ *   GROUP BY YEAR(donation_date), MONTH(donation_date)
+ *   → Kung ilan ang nagdonate bawat buwan (GROUP BY = pagsasama-sama)
+ *
+ * TABLE 2 - Blood Distribution (tblDistribution):
+ *   SELECT blood_group, COUNT(donors), available_units,
+ *   CASE WHEN available_units < 5 THEN 'CRITICAL'
+ *        WHEN available_units < 10 THEN 'LOW'
+ *        ELSE 'ADEQUATE' END
+ *   FROM blood_inventory LEFT JOIN donors
+ *   → Status ng bawat blood type (CASE WHEN = multiple conditions)
+ *
+ * CSV EXPORT:
+ *   Gumagamit ng FileWriter para isulat ang data sa .csv file
+ *   Para itong nag-copy ng table sa Excel file
+ *
+ * MGA BAGONG SQL CONCEPTS DITO:
+ * - GROUP BY = pagsasama-sama ng rows na may parehong value
+ * - MONTHNAME() = ibinibigay ang pangalan ng buwan (January, February...)
+ * - COUNT(*) = bilangan ng rows sa bawat grupo
+ * - LEFT JOIN = pag-combine ng dalawang tables
+ * - CASE WHEN = parang if-else sa loob ng SQL
+ * - COALESCE() = kung null, gamitin ang ibang value
+ * =============================================================================
+ */
 package com.bloodlink.forms;
 
 // ==================== IMPORTS ====================
@@ -239,12 +286,14 @@ public class ReportsForm extends javax.swing.JFrame {
      * Load monthly donation trends from database
      */
     private void loadDonationTrends() {
+        // [DEFENSE] Ihanda ang table kung saan ilalagay ang listahan ng donation trends
         DefaultTableModel model = (DefaultTableModel) tblTrends.getModel();
         model.setRowCount(0); // Clear existing data
         
         try (Connection con = DBConnection.connect()) {
             if (con == null) throw new SQLException("Database connection failed");
             
+            // [DEFENSE] Kukunin sa database kung ilang beses nagka-donate bawat buwan at anong blood types
             String sql = "SELECT MONTHNAME(donation_date) as month, " +
                         "YEAR(donation_date) as year, " +
                         "COUNT(*) as total_donations, " +
@@ -256,6 +305,7 @@ public class ReportsForm extends javax.swing.JFrame {
             try (PreparedStatement pst = con.prepareStatement(sql);
                  ResultSet rs = pst.executeQuery()) {
                 
+                // [DEFENSE] Ilalagay lahat ng nakuha mula sa database papunta sa table
                 while (rs.next()) {
                     Object[] row = {
                         rs.getString("month") + " " + rs.getString("year"),
@@ -303,12 +353,14 @@ public class ReportsForm extends javax.swing.JFrame {
      * Load blood group distribution with inventory status
      */
     private void loadBloodDistribution() {
+    // [DEFENSE] Ihanda ang table para sa listahan ng mga nakatagong dugo sa inventory
     DefaultTableModel model = (DefaultTableModel) tblDistribution.getModel(); // ← DAPAT tblDistribution
     model.setRowCount(0); // Clear existing data
         
         try (Connection con = DBConnection.connect()) {
             if (con == null) throw new SQLException("Database connection failed");
             
+            // [DEFENSE] Kukunin ang bilang ng nagdonate bawat blood type at kung ilan pa ang natitira sa inventory
             String sql = "SELECT i.blood_group, " +
                         "COALESCE(COUNT(d.id), 0) as total_donors, " +
                         "i.available_units as current_stock, " +
@@ -323,6 +375,7 @@ public class ReportsForm extends javax.swing.JFrame {
             try (PreparedStatement pst = con.prepareStatement(sql);
                  ResultSet rs = pst.executeQuery()) {
                 
+                // [DEFENSE] I-display lahat sa table nang isa-isa
                 while (rs.next()) {
                     Object[] row = {
                         rs.getString("blood_group"),
@@ -366,6 +419,7 @@ public class ReportsForm extends javax.swing.JFrame {
      * @param reportName Name for the file and dialog
      */
     private void exportTableToCSV(JTable table, String reportName) {
+        // [DEFENSE] Magbubukas ng window para papiliin ang user kung saan ise-save ang CSV file
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Export " + reportName + " to CSV");
         fileChooser.setAcceptAllFileFilterUsed(false);
@@ -388,6 +442,7 @@ public class ReportsForm extends javax.swing.JFrame {
             try (FileWriter writer = new FileWriter(fileToSave)) {
                 DefaultTableModel model = (DefaultTableModel) table.getModel();
                 
+                // [DEFENSE] Isusulat muna sa file yung mga title ng columns (Headers)
                 // Write headers
                 for (int col = 0; col < model.getColumnCount(); col++) {
                     writer.write(escapeCSV(model.getColumnName(col)));
@@ -395,6 +450,7 @@ public class ReportsForm extends javax.swing.JFrame {
                 }
                 writer.write("\n");
                 
+                // [DEFENSE] Pagkatapos ay isusulat naman yung lahat ng data sa bawat row ng table
                 // Write data rows
                 for (int row = 0; row < table.getRowCount(); row++) {
                     for (int col = 0; col < model.getColumnCount(); col++) {

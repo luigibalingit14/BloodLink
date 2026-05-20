@@ -1,5 +1,33 @@
+/*
+ * =============================================================================
+ * FILE: RegisterDonorForm.java
+ * PARA KAY: AVILA
+ * LAYUNIN: Para mag-register (mag-add) ng bagong blood donor sa sistema.
+ *          Ito ang CREATE operation sa CRUD.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang RegisterDonorForm bilang isang enrollment form sa ospital.
+ * Kapag may bagong pasyente (donor), pinapasok mo ang lahat ng kanyang impormasyon
+ * sa form. Pagkatapos pindutin ang Save, ang impormasyon ay naka-store na sa
+ * database para hindi mawawala at mahahanap ulit sa hinaharap.
+ *
+ * DALAWANG BAGAY ANG NANGYAYARI KAPAG NAG-SAVE:
+ * 1. INSERT INTO donors → Naidagdag ang record ng bagong donor
+ * 2. UPDATE blood_inventory → +1 unit sa blood type ng donor (automatic!)
+ *
+ * MGA VALIDATION (Mga patakaran bago masave):
+ * - Bawal na blangko ang Name at Age
+ * - Dapat 18-65 taong gulang ang donor
+ * - Kailangan may napiling Blood Type at Donation Date
+ *
+ * SQL OPERATION DITO: INSERT (CREATE)
+ * INSERT INTO donors (name, age, blood_group, phone, address, donation_date)
+ * VALUES (?, ?, ?, ?, ?, ?)
+ * =============================================================================
+ */
 package com.bloodlink.forms;
-import com.bloodlink.utils.UserSession;  // ← ← ← DAGDAGAN MO ITO
+import com.bloodlink.utils.UserSession;  // Para ma-access ang info ng naka-login na user
 
 
 import com.bloodlink.db.DBConnection;
@@ -470,15 +498,15 @@ private void setupRegisterSidebar() {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtAddressActionPerformed
 
-    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        // 1. Collect values
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {
+        // [DEFENSE] 1. Kukunin natin yung mga nilagay ng user sa textfields (Name, Age, Blood, Phone, Address)
     String name = txtName.getText().trim();
     String ageText = txtAge.getText().trim();
     String bloodGroup = cmbBlood.getSelectedItem().toString();
     String phone = txtPhone.getText().trim();
     String address = txtAddress.getText().trim();
     
-    // 2. Get date from JDateChooser
+    // [DEFENSE] 2. Kukunin din natin yung petsa ng donation
     java.util.Date selectedDate = dateChooser.getDate();
     if (selectedDate == null) {
         JOptionPane.showMessageDialog(this, 
@@ -487,10 +515,11 @@ private void setupRegisterSidebar() {
         return;
     }
     
+    // [DEFENSE] Kino-convert natin yung date para maintindihan ng database (MySQL format)
     java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
     String donationDate = sqlDate.toString(); // "YYYY-MM-DD"
     
-    // 3. Validation
+    // [DEFENSE] 3. Validation: Chine-check natin kung may laman yung Name at Age (bawal blangko)
     if (name.isEmpty() || ageText.isEmpty()) {
         JOptionPane.showMessageDialog(this, 
             "⚠️ Please fill in Name and Age!", 
@@ -499,6 +528,7 @@ private void setupRegisterSidebar() {
     }
     
     try {
+        // [DEFENSE] Chine-check kung tama yung edad ng donor (dapat 18-65 years old)
         int age = Integer.parseInt(ageText);
         if (age < 18 || age > 65) {
             JOptionPane.showMessageDialog(this, 
@@ -507,8 +537,10 @@ private void setupRegisterSidebar() {
             return;
         }
         
-        // 4. Database insert
+        // [DEFENSE] 4. Database Integration - SQL Statement for ADDING NEW CUSTOMER (DONOR)
+        // Kumokonekta tayo sa database
         java.sql.Connection con = com.bloodlink.db.DBConnection.connect();
+        // Ito yung SQL code na magse-save ng data natin sa database (donors table)
         String sql = "INSERT INTO donors (name, age, blood_group, phone, address, donation_date) VALUES (?, ?, ?, ?, ?, ?)";
         java.sql.PreparedStatement pst = con.prepareStatement(sql);
         pst.setString(1, name);
@@ -518,6 +550,7 @@ private void setupRegisterSidebar() {
         pst.setString(5, address);
         pst.setDate(6, sqlDate); // ← Use sqlDate directly!
         
+        // [DEFENSE] ExecuteUpdate() ang nagpapatakbo nung SQL command. Kung may nagbago, > 0 sya.
         int rowsAffected = pst.executeUpdate();
         
         if (rowsAffected > 0) {
@@ -525,7 +558,9 @@ private void setupRegisterSidebar() {
                 "✅ Donor registered successfully!", 
                 "Success", JOptionPane.INFORMATION_MESSAGE);
             
+            // [DEFENSE] Pagka-save ng donor, ia-update din natin yung bilang ng dugo sa inventory (+1)
             updateInventory(bloodGroup);
+            // Nililinis yung form para sa susunod na input
             clearForm();
         }
         
@@ -542,7 +577,7 @@ private void setupRegisterSidebar() {
             "Database Error", JOptionPane.ERROR_MESSAGE);
         e.printStackTrace();
     }
-    }//GEN-LAST:event_btnSaveActionPerformed
+    }
 
     
     

@@ -1,3 +1,42 @@
+/*
+ * =============================================================================
+ * FILE: InventoryForm.java
+ * PARA KAY: GONZALES
+ * LAYUNIN: Para makita ang kasalukuyang stock ng bawat blood type.
+ *          May color-coding system para agad mapansin ang mga CRITICAL na dugo.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang InventoryForm bilang isang stock room ng isang tindahan.
+ * Alam mo kung ilan pa ang natitirang produkto (blood units) para sa
+ * bawat klase (blood type: A+, A-, B+, B-, O+, O-, AB+, AB-).
+ * Kapag mababa na ang stock (konti na lang), magiging PULA ang color
+ * para agad mahalata ng mga nagtatrabaho na kailangan nang mag-restock.
+ *
+ * COLOR-CODING SYSTEM:
+ * - PULA (RED) + "CRITICAL" = Bababa sa 5 units na lang ang stock
+ * - PUTI (WHITE) + "NORMAL" = Sapat pa ang stock (5 units o higit pa)
+ *
+ * MGA SQL OPERATIONS DITO:
+ *
+ * DISPLAY ALL INVENTORY:
+ *   SELECT blood_group, available_units
+ *   FROM blood_inventory
+ *   ORDER BY blood_group ASC
+ *   → Kunin lahat ng blood types at ang kanilang stocks, alphabetical order
+ *
+ * SEARCH BY BLOOD TYPE:
+ *   SELECT blood_group, available_units
+ *   FROM blood_inventory
+ *   WHERE blood_group LIKE ?
+ *   → Hanapin ang isang specific na blood type
+ *
+ * STATUS LOGIC:
+ *   String status = (units < 5) ? "CRITICAL" : "NORMAL";
+ *   → Kung bababa sa 5, CRITICAL. Kung hindi, NORMAL.
+ *   → Ito ay tinatawag na "Ternary Operator" - shortcut ng if-else
+ * =============================================================================
+ */
 package com.bloodlink.forms;
 
 
@@ -154,18 +193,22 @@ private void setupInventorySidebar() {
     // =====================================================================
 
     private void loadInventory() {
+        // [DEFENSE] Kukunin yung table model para mailagay yung listahan ng inventory
         DefaultTableModel model = (DefaultTableModel) tblInventory.getModel();
         model.setRowCount(0); // Clear table
         
         try {
+            // [DEFENSE] Kumonekta sa database at kunin ang lahat ng blood inventory record
             Connection con = DBConnection.connect();
             String sql = "SELECT blood_group, available_units FROM blood_inventory ORDER BY blood_group ASC";
             PreparedStatement pst = con.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
             
+            // [DEFENSE] Iloloop natin ang mga record na nakuha mula sa database
             while (rs.next()) {
                 String group = rs.getString("blood_group");
                 int units = rs.getInt("available_units");
+                // [DEFENSE] Kung bababa sa 5 ang stock, ilalagay sa status na "CRITICAL"
                 String status = (units < 5) ? "CRITICAL" : "NORMAL";
                 
                 model.addRow(new Object[]{group, units, status});
@@ -174,6 +217,7 @@ private void setupInventorySidebar() {
             rs.close(); pst.close(); con.close();
             
             // ✅ ✅ ✅ COLOR-CODING RENDERER
+            // [DEFENSE] Ang parteng ito ay para kulayan ng Pula (Red) kapag CRITICAL na ang dugo
             tblInventory.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
                 @Override
                 public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -201,17 +245,20 @@ private void setupInventorySidebar() {
     }
 
     private void searchInventory() {
+        // [DEFENSE] Kukunin ang keyword sa text box (ginawang uppercase para madaling hanapin)
         String keyword = txtSearch.getText().trim().toUpperCase();
         DefaultTableModel model = (DefaultTableModel) tblInventory.getModel();
         model.setRowCount(0);
         
         try {
+            // [DEFENSE] Hahanapin sa database kung aling blood group ang kamukha ng tinype ng user (LIKE)
             Connection con = DBConnection.connect();
             String sql = "SELECT blood_group, available_units FROM blood_inventory WHERE blood_group LIKE ? ORDER BY blood_group ASC";
             PreparedStatement pst = con.prepareStatement(sql);
             pst.setString(1, "%" + keyword + "%");
             ResultSet rs = pst.executeQuery();
             
+            // [DEFENSE] I-display ang mga nahanap sa table
             while (rs.next()) {
                 String group = rs.getString("blood_group");
                 int units = rs.getInt("available_units");

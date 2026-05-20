@@ -1,3 +1,24 @@
+/*
+ * =============================================================================
+ * FILE: DBConnection.java
+ * PARA KAY: JAPITANA
+ * LAYUNIN: Ang "Tulay" o Bridge sa pagitan ng Java program at MySQL Database.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang DBConnection bilang isang telepono.
+ * Ang Java program natin ay gusto makipag-usap sa MySQL Database.
+ * Para magawa iyon, kailangan nating mag-dial ng numero (ang DB_URL)
+ * gamit ang tamang username at password.
+ * Kapag konektado na, pwede na tayong magpadala at tumanggap ng impormasyon.
+ *
+ * IBIG SABIHIN NG MGA TERMS:
+ * - JDBC: Java Database Connectivity - paraan ng Java para makakonekta sa database
+ * - Driver: Ang "translator" sa pagitan ng Java at MySQL
+ * - Connection: Ang aktibong koneksyon sa database (parang aktibong tawag sa telepono)
+ * - DriverManager: Ang "operator" na nagmamanage ng mga koneksyon
+ * =============================================================================
+ */
 package com.bloodlink.db;
 
 import java.sql.Connection;
@@ -21,9 +42,11 @@ public class DBConnection {
      */
     public static Connection connect() {
         try {
+            // [DEFENSE] Hahanapin ang driver ng MySQL (kailangan 'to para makapag-usap ang Java at MySQL)
             // Load MySQL JDBC Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
             
+            // [DEFENSE] Magcoconnect na sa database gamit yung URL, Username, at Password
             // Establish and return connection
             return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
             

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BloodLink - COMPROG2 Final Project Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;600;700;900&family=Inter:wght@300;400;600;700;900&display=swap');
+
+  :root {
+    --crimson: #dc143c;
+    --dark-red: #8b0000;
+    --light-red: #ff6b6b;
+    --bg-dark: #0d0305;
+    --bg-card: rgba(255,255,255,0.05);
+    --glass: rgba(220,20,60,0.08);
+    --text: #f8f8f8;
+    --text-dim: #ccaaaa;
+    --accent: #ff4466;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    scroll-behavior: smooth;
+  }
+
+  /* SLIDE BASE */
+  .slide {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    position: relative;
+    border-bottom: 1px solid rgba(220,20,60,0.2);
+    overflow: hidden;
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at top left, rgba(220,20,60,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at bottom right, rgba(139,0,0,0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .slide-number {
+    position: absolute;
+    top: 24px; right: 36px;
+    font-size: 13px;
+    color: rgba(220,20,60,0.5);
+    font-weight: 600;
+    letter-spacing: 2px;
+  }
+
+  /* TITLE SLIDE */
+  .slide-title {
+    background: linear-gradient(135deg, #0d0305 0%, #1a0508 50%, #0d0305 100%);
+    text-align: center;
+  }
+
+  .blood-drop {
+    font-size: 80px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(220,20,60,0.8));
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  h1.main-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--crimson);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    text-align: center;
+    max-width: 800px;
+  }
+
+  h1.project-title {
+    font-size: 64px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff6b6b, #dc143c, #8b0000);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+  }
+
+  /* MEMBER LIST */
+  .members-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 30px 0;
+    max-width: 900px;
+  }
+
+  .member-card {
+    background: var(--glass);
+    border: 1px solid rgba(220,20,60,0.3);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .member-card:hover {
+    border-color: var(--crimson);
+    background: rgba(220,20,60,0.15);
+    transform: translateY(-3px);
+  }
+
+  .member-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .member-role {
+    font-size: 11px;
+    color: var(--light-red);
+    margin-top: 4px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    width: 100%;
+    max-width: 1100px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .slide-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--crimson);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h2.slide-heading {
+    font-size: 48px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  h2.slide-heading span { color: var(--crimson); }
+
+  .heading-line {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--crimson), transparent);
+    margin: 16px auto;
+    border-radius: 2px;
+  }
+
+  /* CONTENT CARDS */
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  .card {
+    background: var(--glass);
+    border: 1px solid rgba(220,20,60,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    border-color: var(--crimson);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(220,20,60,0.2);
+  }
+
+  .card-icon { font-size: 32px; margin-bottom: 12px; }
+  .card-title { font-size: 18px; font-weight: 700; color: var(--crimson); margin-bottom: 8px; }
+  .card-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+
+  /* SQL BLOCKS */
+  .sql-container {
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  .sql-item {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(220,20,60,0.2);
+  }
+
+  .sql-header {
+    background: rgba(220,20,60,0.2);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--light-red);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sql-code {
+    background: rgba(0,0,0,0.6);
+    padding: 16px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #f8f8f8;
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  .sql-keyword { color: #ff6b6b; font-weight: bold; }
+  .sql-table { color: #ffd700; }
+  .sql-column { color: #87ceeb; }
+  .sql-value { color: #98fb98; }
+  .sql-comment { color: #888; font-style: italic; }
+
+  /* SCREENSHOT PLACEHOLDER */
+  .screenshot-box {
+    background: rgba(255,255,255,0.03);
+    border: 2px dashed rgba(220,20,60,0.4);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 800px;
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+  }
+
+  .screenshot-box:hover {
+    border-color: var(--crimson);
+    background: rgba(220,20,60,0.05);
+  }
+
+  .screenshot-icon { font-size: 60px; margin-bottom: 16px; opacity: 0.4; }
+  .screenshot-text { font-size: 16px; color: var(--text-dim); opacity: 0.7; }
+  .screenshot-hint { font-size: 13px; color: rgba(220,20,60,0.5); margin-top: 8px; }
+
+  /* TABLE SCHEMA */
+  .schema-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .schema-table th {
+    background: rgba(220,20,60,0.3);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #fff;
+  }
+
+  .schema-table td {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.3);
+    color: var(--text-dim);
+    font-family: 'Courier New', monospace;
+  }
+
+  .schema-table tr:last-child td { border-bottom: none; }
+  .pk { color: #ffd700; font-weight: bold; }
+  .fk { color: #87ceeb; }
+  .type { color: #98fb98; }
+
+  /* INFO BOX */
+  .info-box {
+    background: rgba(220,20,60,0.1);
+    border-left: 4px solid var(--crimson);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    margin: 12px 0;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  /* DEMO SLIDE */
+  .demo-slide {
+    background: radial-gradient(ellipse at center, rgba(220,20,60,0.2) 0%, transparent 70%);
+  }
+
+  .demo-title {
+    font-size: 72px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ff6b6b, #dc143c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  /* NAV BAR */
+  .nav-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(13,3,5,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(220,20,60,0.3);
+    padding: 12px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+  }
+
+  .nav-logo { font-size: 20px; font-weight: 800; color: var(--crimson); }
+  .nav-subtitle { font-size: 12px; color: var(--text-dim); }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(220,20,60,0.4), transparent);
+    margin: 30px 0;
+    max-width: 1100px;
+  }
+
+  /* INFO ROW */
+  .info-row {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .info-badge {
+    background: var(--glass);
+    border: 1px solid rgba(220,20,60,0.3);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  .info-badge strong { color: var(--crimson); }
+
+  /* ERD Box */
+  .erd-box {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(220,20,60,0.3);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 900px;
+    width: 100%;
+    margin: 20px auto;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 2;
+  }
+
+  .erd-table {
+    display: inline-block;
+    background: rgba(220,20,60,0.1);
+    border: 1px solid rgba(220,20,60,0.5);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 8px;
+    text-align: left;
+  }
+
+  .erd-table-title {
+    color: var(--crimson);
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(220,20,60,0.3);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .erd-arrow {
+    font-size: 28px;
+    color: rgba(220,20,60,0.5);
+    margin: 0 16px;
+    vertical-align: middle;
+  }
+
+  body { padding-top: 60px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .slide { padding: 40px 20px; }
+    h2.slide-heading { font-size: 32px; }
+    h1.project-title { font-size: 40px; }
+    .members-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV BAR -->
+<nav class="nav-bar">
+  <div>
+    <div class="nav-logo">🩸 BloodLink</div>
+    <div class="nav-subtitle">Blood Bank Management System</div>
+  </div>
+  <div style="font-size:13px;color:rgba(220,20,60,0.6);letter-spacing:2px;">COMPROG2 &amp; INFOMAN | GROUP 1</div>
+</nav>
+
+<!-- ============================= SLIDE 1 ============================= -->
+<section class="slide slide-title" id="slide1">
+  <span class="slide-number">SLIDE 01</span>
+  <div class="blood-drop">🩸</div>
+  <h1 class="main-title">FINAL PROJECT IN COMPUTER PROGRAMMING 2 (COMPROG2)<br>&amp; INFORMATION MANAGEMENT (INFOMAN)</h1>
+  <div class="heading-line"></div>
+  <p class="subtitle">Group 1 &nbsp;|&nbsp; [Your Section Here] &nbsp;|&nbsp; [Professor's Name]</p>
+
+  <div class="members-grid">
+    <div class="member-card"><div class="member-name">Tolentino</div><div class="member-role">Login System</div></div>
+    <div class="member-card"><div class="member-name">Villanueva</div><div class="member-role">Dashboard</div></div>
+    <div class="member-card"><div class="member-name">De Leon</div><div class="member-role">Introduction</div></div>
+    <div class="member-card"><div class="member-name">Japitana</div><div class="member-role">Database Architecture</div></div>
+    <div class="member-card"><div class="member-name">Avila</div><div class="member-role">Register Donor</div></div>
+    <div class="member-card"><div class="member-name">Duyanen</div><div class="member-role">View Donors</div></div>
+    <div class="member-card"><div class="member-name">Sorcoso</div><div class="member-role">Update &amp; Delete</div></div>
+    <div class="member-card"><div class="member-name">Gonzales</div><div class="member-role">Inventory</div></div>
+    <div class="member-card"><div class="member-name">Balingit</div><div class="member-role">Reports &amp; CSV</div></div>
+    <div class="member-card"><div class="member-name">Nasol</div><div class="member-role">System Settings</div></div>
+    <div class="member-card"><div class="member-name">Macahilig</div><div class="member-role">Project Title &amp; Screenshots</div></div>
+  </div>
+</section>
+
+<!-- ============================= SLIDE 2 ============================= -->
+<section class="slide" id="slide2">
+  <span class="slide-number">SLIDE 02</span>
+  <div class="section-header">
+    <div class="slide-label">Project Title</div>
+    <h1 class="project-title">BloodLink</h1>
+    <p style="font-size:22px;color:var(--text-dim);margin-bottom:12px;">Blood Bank Management System</p>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="info-box" style="text-align:center;max-width:600px;">
+    🩸 &nbsp; <strong style="color:var(--crimson);">BloodLink</strong> — A comprehensive digital solution for managing blood donors, tracking inventory levels, and generating analytical reports for blood banks.
+  </div>
+
+  <div class="info-row">
+    <div class="info-badge"><strong>Platform:</strong> Java Desktop App</div>
+    <div class="info-badge"><strong>Database:</strong> MySQL (XAMPP)</div>
+    <div class="info-badge"><strong>Framework:</strong> Java Swing</div>
+    <div class="info-badge"><strong>Group:</strong> Group 1</div>
+  </div>
+</section>
+
+<!-- ============================= SLIDE 3 ============================= -->
+<section class="slide" id="slide3">
+  <span class="slide-number">SLIDE 03</span>
+  <div class="section-header">
+    <div class="slide-label">Overview</div>
+    <h2 class="slide-heading">Introduction <span>&amp; Features</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="info-box" style="max-width:900px;margin-bottom:30px;">
+    BloodLink is a Java-based desktop application designed for blood banks to efficiently manage donor records, monitor real-time blood inventory, and generate analytical reports. The system implements role-based access control, ensuring that Administrators and Staff have appropriate levels of access to the system's features. It utilizes MySQL for persistent data storage and Java Swing for its modern, glassmorphism-inspired user interface.
+  </div>
+
+  <div class="content-grid" style="max-width:1100px;">
+    <div class="card"><div class="card-icon">📊</div><div class="card-title">Dashboard Overview</div><div class="card-desc">Real-time statistics showing total donors, blood units, critical stock alerts, and recent donations within 7 days.</div></div>
+    <div class="card"><div class="card-icon">🔐</div><div class="card-title">Role-Based Access Control</div><div class="card-desc">Two-tier user system: Admin has full access, Staff has restricted access to manage day-to-day operations only.</div></div>
+    <div class="card"><div class="card-icon">📝</div><div class="card-title">Donor Registration</div><div class="card-desc">Register new blood donors with full details — name, age, blood type, contact, address, and donation date.</div></div>
+    <div class="card"><div class="card-icon">👥</div><div class="card-title">Donor Management (CRUD)</div><div class="card-desc">View, search, update, and delete donor records using a fully-featured table with search and filter capabilities.</div></div>
+    <div class="card"><div class="card-icon">🩸</div><div class="card-title">Blood Inventory Tracking</div><div class="card-desc">Real-time tracking of all 8 blood types with color-coded CRITICAL alerts when stock drops below 5 units.</div></div>
+    <div class="card"><div class="card-icon">📈</div><div class="card-title">Reports &amp; Analytics</div><div class="card-desc">Monthly donation trends and blood distribution reports with one-click CSV export functionality.</div></div>
+    <div class="card"><div class="card-icon">⚙️</div><div class="card-title">System Settings (Admin)</div><div class="card-desc">Admin-exclusive user management: add/delete accounts, change passwords, view system information.</div></div>
+  </div>
+</section>
+
+<!-- ============================= SLIDE 4 — LOGIN ============================= -->
+<section class="slide" id="slide4">
+  <span class="slide-number">SLIDE 04</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">Login <span>Form</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: LoginForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> The secure entry point of BloodLink. Users enter their <strong>Username</strong> and <strong>Password</strong> which are verified against the MySQL database. The system detects the user's role (Admin or Staff) and redirects to the Dashboard upon successful authentication. A "Show Password" checkbox is available for convenience.
+  </div>
+</section>
+
+<!-- ============================= SLIDE 5 — DASHBOARD ============================= -->
+<section class="slide" id="slide5">
+  <span class="slide-number">SLIDE 05</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">Dashboard <span>Overview</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: DashboardForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> The central hub of BloodLink. Displays real-time statistics: <strong>Total Donors</strong> (COUNT), <strong>Available Blood Units</strong> (SUM), <strong>Critical Blood Types</strong> (stock &lt; 5 units shown in red), and <strong>Recent Donations</strong> (last 7 days). Features a live digital clock and role badge.
+  </div>
+</section>
+
+<!-- ============================= SLIDE 6 — REGISTER ============================= -->
+<section class="slide" id="slide6">
+  <span class="slide-number">SLIDE 06</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">Register <span>Donor</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: RegisterDonorForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> Data entry form for new blood donors. Collects Name, Age (validated: 18–65), Blood Type, Phone, Address, and Donation Date. Upon saving, data is inserted into the <strong>donors</strong> table via SQL INSERT and the <strong>blood_inventory</strong> table is automatically updated (+1 unit).
+  </div>
+</section>
+
+<!-- ============================= SLIDE 7 — VIEW DONORS ============================= -->
+<section class="slide" id="slide7">
+  <span class="slide-number">SLIDE 07</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">View <span>Donors</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: ViewDonorsForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> Displays all registered donors in a JTable. Features a <strong>search bar</strong> (filters by name or blood type using SQL LIKE), <strong>Update</strong> button (edits selected donor), and <strong>Delete</strong> button (removes record with confirmation dialog). Records ordered by most recent donation.
+  </div>
+</section>
+
+<!-- ============================= SLIDE 8 — INVENTORY ============================= -->
+<section class="slide" id="slide8">
+  <span class="slide-number">SLIDE 08</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">Blood <span>Inventory</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: InventoryForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> Shows current stock of all 8 blood types (A+, A−, B+, B−, O+, O−, AB+, AB−). Rows are <strong>color-coded RED</strong> and marked "CRITICAL" when stock falls below 5 units. Includes search filter and refresh button. Inventory auto-updates when a new donor is registered.
+  </div>
+</section>
+
+<!-- ============================= SLIDE 9 — REPORTS ============================= -->
+<section class="slide" id="slide9">
+  <span class="slide-number">SLIDE 09</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">Reports <span>&amp; Analytics</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: ReportsForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> Analytical module with two tables: <strong>Donation Summary</strong> (monthly trends grouped by YEAR/MONTH) and <strong>Inventory Status</strong> (blood type distribution with CRITICAL/LOW/ADEQUATE status). Export to CSV button saves reports to a file using Java FileWriter.
+  </div>
+</section>
+
+<!-- ============================= SLIDE 10 — SETTINGS ============================= -->
+<section class="slide" id="slide10">
+  <span class="slide-number">SLIDE 10</span>
+  <div class="section-header">
+    <div class="slide-label">Screenshot</div>
+    <h2 class="slide-heading">System <span>Settings</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="screenshot-box">
+    <div class="screenshot-icon">🖼️</div>
+    <div class="screenshot-text">INSERT SCREENSHOT: SettingsForm</div>
+    <div class="screenshot-hint">[ Paste your screenshot here in PowerPoint ]</div>
+  </div>
+
+  <div class="info-box" style="max-width:800px;">
+    <strong>Description:</strong> Exclusive to <strong>Admin users only</strong>. Contains 3 tabs: (1) <strong>User Management</strong> — view, add, and delete user accounts; (2) <strong>Account Security</strong> — change password with current password verification; (3) <strong>System Info</strong> — displays version, active user, database status.
+  </div>
+</section>
+
+<!-- ============================= SLIDE 11 — SQL STATEMENTS ============================= -->
+<section class="slide" id="slide11">
+  <span class="slide-number">SLIDE 11</span>
+  <div class="section-header">
+    <div class="slide-label">Database Integration</div>
+    <h2 class="slide-heading">SQL <span>Statements Used</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="sql-container">
+
+    <div class="sql-item">
+      <div class="sql-header">🔐 LOGIN — Verify User Credentials</div>
+      <div class="sql-code"><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">users</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-column">username</span> = ? <span class="sql-keyword">AND</span> <span class="sql-column">password</span> = ?
+<span class="sql-comment">-- ? = PreparedStatement placeholder (SQL Injection Protected)</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">➕ ADDING NEW CUSTOMER — INSERT Donor</div>
+      <div class="sql-code"><span class="sql-keyword">INSERT INTO</span> <span class="sql-table">donors</span> (<span class="sql-column">name</span>, <span class="sql-column">age</span>, <span class="sql-column">blood_group</span>, <span class="sql-column">phone</span>, <span class="sql-column">address</span>, <span class="sql-column">donation_date</span>)
+<span class="sql-keyword">VALUES</span> (<span class="sql-value">?, ?, ?, ?, ?, ?</span>)</div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">🔍 SEARCHING CUSTOMER — Filter by Name or Blood Type</div>
+      <div class="sql-code"><span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">donors</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-column">name</span> <span class="sql-keyword">LIKE</span> <span class="sql-value">?</span> <span class="sql-keyword">OR</span> <span class="sql-column">blood_group</span> <span class="sql-keyword">LIKE</span> <span class="sql-value">?</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-column">id</span> <span class="sql-keyword">DESC</span>
+<span class="sql-comment">-- % wildcard: matches any characters (e.g., '%O+%' finds all O+ donors)</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">✏️ UPDATING CUSTOMER INFORMATION — UPDATE Donor</div>
+      <div class="sql-code"><span class="sql-keyword">UPDATE</span> <span class="sql-table">donors</span>
+<span class="sql-keyword">SET</span> <span class="sql-column">name</span>=?, <span class="sql-column">age</span>=?, <span class="sql-column">blood_group</span>=?, <span class="sql-column">phone</span>=?, <span class="sql-column">address</span>=?
+<span class="sql-keyword">WHERE</span> <span class="sql-column">id</span> = ?
+<span class="sql-comment">-- WHERE id = ? ensures only the selected donor is updated</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">🗑️ DELETING CUSTOMER — DELETE Donor</div>
+      <div class="sql-code"><span class="sql-keyword">DELETE FROM</span> <span class="sql-table">donors</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-column">id</span> = ?
+<span class="sql-comment">-- Permanently removes the record from the database</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">📋 DISPLAYING ALL CUSTOMERS — SELECT All Donors (JTable)</div>
+      <div class="sql-code"><span class="sql-keyword">SELECT</span> <span class="sql-column">id</span>, <span class="sql-column">name</span>, <span class="sql-column">age</span>, <span class="sql-column">blood_group</span>, <span class="sql-column">phone</span>, <span class="sql-column">address</span>, <span class="sql-column">donation_date</span>
+<span class="sql-keyword">FROM</span> <span class="sql-table">donors</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-column">id</span> <span class="sql-keyword">DESC</span>
+<span class="sql-comment">-- ORDER BY id DESC = newest records appear first</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">🔎 FILTERING — By Blood Type</div>
+      <div class="sql-code"><span class="sql-keyword">SELECT</span> <span class="sql-column">blood_group</span>, <span class="sql-column">available_units</span>
+<span class="sql-keyword">FROM</span> <span class="sql-table">blood_inventory</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-column">available_units</span> &lt; <span class="sql-value">5</span>
+<span class="sql-keyword">ORDER BY</span> <span class="sql-column">blood_group</span> <span class="sql-keyword">ASC</span>
+<span class="sql-comment">-- Filters blood types with CRITICAL stock (less than 5 units)</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">📊 REPORTS — Monthly Donation Trends (GROUP BY)</div>
+      <div class="sql-code"><span class="sql-keyword">SELECT</span> <span class="sql-column">MONTHNAME</span>(donation_date) <span class="sql-keyword">as</span> month,
+       <span class="sql-column">YEAR</span>(donation_date) <span class="sql-keyword">as</span> year,
+       <span class="sql-column">COUNT</span>(*) <span class="sql-keyword">as</span> total_donations
+<span class="sql-keyword">FROM</span> <span class="sql-table">donors</span>
+<span class="sql-keyword">GROUP BY</span> <span class="sql-column">YEAR</span>(donation_date), <span class="sql-column">MONTH</span>(donation_date)
+<span class="sql-keyword">ORDER BY</span> year <span class="sql-keyword">DESC</span>, month <span class="sql-keyword">DESC</span></div>
+    </div>
+
+    <div class="sql-item">
+      <div class="sql-header">➕ AUTO INVENTORY UPDATE — After Donor Registration</div>
+      <div class="sql-code"><span class="sql-keyword">UPDATE</span> <span class="sql-table">blood_inventory</span>
+<span class="sql-keyword">SET</span> <span class="sql-column">available_units</span> = available_units + <span class="sql-value">1</span>
+<span class="sql-keyword">WHERE</span> <span class="sql-column">blood_group</span> = ?
+<span class="sql-comment">-- Automatically adds 1 unit to inventory when a new donor is registered</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================= SLIDE 12 — DATABASE SCHEMA ============================= -->
+<section class="slide" id="slide12">
+  <span class="slide-number">SLIDE 12</span>
+  <div class="section-header">
+    <div class="slide-label">Database Schema &amp; ERD</div>
+    <h2 class="slide-heading">Database <span>Structure</span></h2>
+    <div class="heading-line"></div>
+  </div>
+
+  <div class="two-col" style="max-width:1100px;width:100%;">
+
+    <div>
+      <p style="color:var(--crimson);font-weight:700;margin-bottom:12px;font-size:16px;">📋 TABLE: donors</p>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="pk">id</td><td class="type">INT (PK, AI)</td><td>Unique ID (auto-generated)</td></tr>
+        <tr><td>name</td><td class="type">VARCHAR(100)</td><td>Full name of donor</td></tr>
+        <tr><td>age</td><td class="type">INT</td><td>Age (18–65 valid range)</td></tr>
+        <tr><td>blood_group</td><td class="type">VARCHAR(5)</td><td>Blood type (A+, O−, etc.)</td></tr>
+        <tr><td>phone</td><td class="type">VARCHAR(20)</td><td>Contact number</td></tr>
+        <tr><td>address</td><td class="type">VARCHAR(255)</td><td>Home address</td></tr>
+        <tr><td>donation_date</td><td class="type">DATE</td><td>Date of donation</td></tr>
+      </table>
+
+      <p style="color:var(--crimson);font-weight:700;margin-bottom:12px;margin-top:24px;font-size:16px;">👤 TABLE: users</p>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="pk">id</td><td class="type">INT (PK, AI)</td><td>Unique user ID</td></tr>
+        <tr><td>username</td><td class="type">VARCHAR(50)</td><td>Login username</td></tr>
+        <tr><td>password</td><td class="type">VARCHAR(255)</td><td>Login password</td></tr>
+        <tr><td>full_name</td><td class="type">VARCHAR(100)</td><td>Display name</td></tr>
+        <tr><td>role</td><td class="type">VARCHAR(10)</td><td>Admin or Staff</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <p style="color:var(--crimson);font-weight:700;margin-bottom:12px;font-size:16px;">🩸 TABLE: blood_inventory</p>
+      <table class="schema-table">
+        <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+        <tr><td class="pk">id</td><td class="type">INT (PK, AI)</td><td>Unique row ID</td></tr>
+        <tr><td>blood_group</td><td class="type">VARCHAR(5)</td><td>Blood type (A+, O−, etc.)</td></tr>
+        <tr><td>available_units</td><td class="type">INT</td><td>Number of units in stock</td></tr>
+      </table>
+
+      <p style="color:var(--crimson);font-weight:700;margin:24px 0 12px;font-size:16px;">🔗 Entity Relationship Diagram (ERD)</p>
+      <div class="erd-box">
+        <div style="margin-bottom:16px;">
+          <div class="erd-table">
+            <div class="erd-table-title">🧑 DONORS</div>
+            <div>🔑 id (PK)</div>
+            <div>name, age</div>
+            <div style="color:var(--crimson);">blood_group (FK→)</div>
+            <div>phone, address</div>
+            <div>donation_date</div>
+          </div>
+          <span class="erd-arrow">→</span>
+          <div class="erd-table">
+            <div class="erd-table-title">🩸 BLOOD_INVENTORY</div>
+            <div>🔑 id (PK)</div>
+            <div style="color:var(--crimson);">blood_group (PK ref)</div>
+            <div>available_units</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;color:rgba(220,20,60,0.6);font-size:13px;">donors.blood_group → blood_inventory.blood_group (Many-to-One)</div>
+        <div style="margin-top:16px;">
+          <div class="erd-table">
+            <div class="erd-table-title">👤 USERS</div>
+            <div>🔑 id (PK)</div>
+            <div>username (UNIQUE)</div>
+            <div>password</div>
+            <div>full_name</div>
+            <div style="color:var(--crimson);">role: Admin / Staff</div>
+          </div>
+          <span class="erd-arrow">→</span>
+          <div class="erd-table" style="background:rgba(255,215,0,0.05);border-color:rgba(255,215,0,0.3);">
+            <div class="erd-table-title" style="color:#ffd700;">⚙️ Access Control</div>
+            <div>Admin → Full access</div>
+            <div>Staff → Limited access</div>
+            <div>Session managed by</div>
+            <div style="color:#ffd700;">UserSession.java</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;color:rgba(255,215,0,0.4);font-size:13px;">users.role → Controls visibility of UI components (RBAC)</div>
+      </div>
+      <div class="info-box" style="margin-top:16px;">
+        📸 <strong>Note:</strong> Insert screenshots of your actual MySQL tables (from phpMyAdmin) and your ERD diagram here in PowerPoint.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================= SLIDE 13 — DEMO ============================= -->
+<section class="slide demo-slide" id="slide13">
+  <span class="slide-number">SLIDE 13</span>
+  <div class="blood-drop" style="font-size:100px;">🩸</div>
+  <div class="demo-title">DEMO</div>
+  <p style="font-size:24px;color:var(--text-dim);margin-bottom:40px;letter-spacing:2px;">Program Demonstration</p>
+
+  <div class="info-box" style="max-width:700px;text-align:center;font-size:16px;">
+    Run the BloodLink program and demonstrate all features:<br><br>
+    <strong style="color:var(--crimson);">Login → Dashboard → Register Donor → View Donors → Search → Update → Delete → Inventory → Reports → Settings</strong>
+  </div>
+
+  <div class="info-row" style="margin-top:30px;">
+    <div class="info-badge">🔐 <strong>Login</strong> with Admin &amp; Staff</div>
+    <div class="info-badge">📝 <strong>Register</strong> a new donor</div>
+    <div class="info-badge">🔍 <strong>Search</strong> by name/blood type</div>
+    <div class="info-badge">✏️ <strong>Update</strong> donor info</div>
+    <div class="info-badge">🗑️ <strong>Delete</strong> a record</div>
+    <div class="info-badge">📊 <strong>Show</strong> Reports</div>
+  </div>
+
+  <p style="margin-top:60px;color:rgba(220,20,60,0.4);font-size:14px;letter-spacing:3px;">— GROUP 1 | COMPROG2 &amp; INFOMAN —</p>
+</section>
+
+</body>
+</html>

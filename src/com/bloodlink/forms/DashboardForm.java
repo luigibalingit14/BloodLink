@@ -1,3 +1,35 @@
+/*
+ * =============================================================================
+ * FILE: DashboardForm.java
+ * PARA KAY: VILLANUEVA
+ * LAYUNIN: Ang pangunahing "Home Page" ng BloodLink pagkatapos mag-login.
+ *          Nagpapakita ng real-time summary ng lahat ng importanteng datos.
+ * =============================================================================
+ *
+ * SIMPLENG PALIWANAG:
+ * Isipin mo ang DashboardForm bilang isang control panel sa isang sasakyan.
+ * Sa isang tingin mo pa lang, makikita mo na agad ang lahat ng importanteng
+ * impormasyon: speed (total donors), fuel level (blood units), at warning lights
+ * (critical blood types). Hindi mo na kailangang lumabas ng sasakyan para malaman
+ * ang estado — makikita mo na agad sa isang screen.
+ *
+ * MGA CARD NA IPINAPAKITA:
+ * ┌─────────────────┐  ┌─────────────────┐
+ * │  Total Donors   │  │  Blood Units    │
+ * │  COUNT(*) SQL   │  │  SUM() SQL      │
+ * └─────────────────┘  └─────────────────┘
+ * ┌─────────────────┐  ┌─────────────────┐
+ * │ Critical Types  │  │ Recent Donations│
+ * │ stock < 5 units │  │ last 7 days     │
+ * └─────────────────┘  └─────────────────┘
+ *
+ * MGA MAHAHALAGANG SQL FUNCTIONS DITO:
+ * - COUNT(*) → Bilangan ng lahat ng rows/records
+ * - SUM(column) → Isama-samahin ang values ng isang column
+ * - WHERE available_units < 5 → Filter para sa critical stock
+ * - DATE_SUB(CURDATE(), INTERVAL 7 DAY) → 7 araw na nakalipas
+ * =============================================================================
+ */
 package com.bloodlink.forms;
 import com.bloodlink.utils.UserSession;
 import java.sql.PreparedStatement;
@@ -13,10 +45,15 @@ import java.sql.Connection;
 
 public class DashboardForm extends javax.swing.JFrame {
     
+    // Ang mga variable na ito ay nagtatago ng role at pangalan ng naka-login na user
+    // Ginagamit ito para sa role-based UI (kung admin ba o staff)
        private String currentUserRole;
        private String currentUserName;
+       
+    // Ang clockTimer ay nagpapatakbo ng live clock tuwing 1 segundo
        private javax.swing.Timer clockTimer;
     
+    // Ang logger ay para sa logging ng mga error sa console (para sa debugging)
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DashboardForm.class.getName());
 
     /**
@@ -60,19 +97,21 @@ public DashboardForm() {
  */
 private void loadDashboardStats() {
     try {
+        // [DEFENSE] Kumonekta sa database para kunin ang mga summary sa dashboard
         Connection con = DBConnection.connect();
         if (con == null) return;
         
-        // 1. Total Donors Count ✅
+        // [DEFENSE] 1. Total Donors Count: Binibilang kung ilan lahat ng nag-donate (COUNT(*))
         String sql1 = "SELECT COUNT(*) as total FROM donors";
         PreparedStatement pst1 = con.prepareStatement(sql1);
         ResultSet rs1 = pst1.executeQuery();
         if (rs1.next() && lblValueDonors != null) {
+            // [DEFENSE] Ilalagay ang nabilang sa Label para makita ng user
             lblValueDonors.setText(String.valueOf(rs1.getInt("total")));
         }
         rs1.close(); pst1.close();
         
-        // 2. Total Blood Units ✅
+        // [DEFENSE] 2. Total Blood Units: Pagsasama-samahin (SUM) lahat ng available_units sa inventory
         String sql2 = "SELECT SUM(available_units) as total FROM blood_inventory";
         PreparedStatement pst2 = con.prepareStatement(sql2);
         ResultSet rs2 = pst2.executeQuery();
@@ -82,7 +121,7 @@ private void loadDashboardStats() {
         }
         rs2.close(); pst2.close();
         
-        // 3. Critical Blood Types (< 5 units) ✅ UPDATED WITH lblCriticalDetails
+        // [DEFENSE] 3. Critical Blood Types: Hahanapin yung mga dugong konti na lang ang stock (mababa sa 5)
         String sql3 = "SELECT blood_group, available_units FROM blood_inventory WHERE available_units < 5 ORDER BY blood_group ASC";
         PreparedStatement pst3 = con.prepareStatement(sql3);
         ResultSet rs3 = pst3.executeQuery();
@@ -90,6 +129,7 @@ private void loadDashboardStats() {
         StringBuilder criticalList = new StringBuilder();
         int criticalCount = 0;
         
+        // [DEFENSE] Ililista yung mga nahanap na paubos na dugo
         while (rs3.next()) {
             criticalCount++;
             String group = rs3.getString("blood_group");
@@ -132,7 +172,7 @@ private void loadDashboardStats() {
         }
         rs3.close(); pst3.close();
         
-        // 4. Recent Donations (Last 7 Days) ✅
+        // [DEFENSE] 4. Recent Donations: Bibilangin yung mga nag-donate nitong nakaraang 7 araw
         String sql4 = "SELECT COUNT(*) as recent FROM donors WHERE donation_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
         PreparedStatement pst4 = con.prepareStatement(sql4);
         ResultSet rs4 = pst4.executeQuery();
