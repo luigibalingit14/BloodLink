@@ -55,21 +55,24 @@ public DashboardForm() {
 /**
  * Load summary statistics for dashboard overview
  */
+/**
+ * Load summary statistics for dashboard overview
+ */
 private void loadDashboardStats() {
     try {
         Connection con = DBConnection.connect();
         if (con == null) return;
         
-        // 1. Total Donors Count ✅ FIXED
+        // 1. Total Donors Count ✅
         String sql1 = "SELECT COUNT(*) as total FROM donors";
         PreparedStatement pst1 = con.prepareStatement(sql1);
         ResultSet rs1 = pst1.executeQuery();
-        if (rs1.next() && lblValueDonors != null) {  // ✅ Check null + correct label
+        if (rs1.next() && lblValueDonors != null) {
             lblValueDonors.setText(String.valueOf(rs1.getInt("total")));
         }
         rs1.close(); pst1.close();
         
-        // 2. Total Blood Units
+        // 2. Total Blood Units ✅
         String sql2 = "SELECT SUM(available_units) as total FROM blood_inventory";
         PreparedStatement pst2 = con.prepareStatement(sql2);
         ResultSet rs2 = pst2.executeQuery();
@@ -79,25 +82,57 @@ private void loadDashboardStats() {
         }
         rs2.close(); pst2.close();
         
-        // 3. Critical Blood Types (< 5 units)
-        String sql3 = "SELECT COUNT(*) as critical FROM blood_inventory WHERE available_units < 5";
+        // 3. Critical Blood Types (< 5 units) ✅ UPDATED WITH lblCriticalDetails
+        String sql3 = "SELECT blood_group, available_units FROM blood_inventory WHERE available_units < 5 ORDER BY blood_group ASC";
         PreparedStatement pst3 = con.prepareStatement(sql3);
         ResultSet rs3 = pst3.executeQuery();
-        if (rs3.next() && lblValueCritical != null) {
-            int critical = rs3.getInt("critical");
-            lblValueCritical.setText(String.valueOf(critical));
+        
+        StringBuilder criticalList = new StringBuilder();
+        int criticalCount = 0;
+        
+        while (rs3.next()) {
+            criticalCount++;
+            String group = rs3.getString("blood_group");
+            int units = rs3.getInt("available_units");
             
-            if (critical > 0) {
+            // Format: "A- (3), O- (2)"
+            if (criticalList.length() > 0) {
+                criticalList.append(", ");
+            }
+            criticalList.append(group).append(" (").append(units).append(")");
+        }
+        
+        // Update UI Labels
+        if (lblValueCritical != null) {
+            lblValueCritical.setText(String.valueOf(criticalCount));
+            
+            if (criticalCount > 0) {
+                // 🔴 CRITICAL: Show red + list of blood types
                 lblValueCritical.setForeground(new Color(220, 20, 60));
-                if (lblSubtitleCritical != null) lblSubtitleCritical.setText("Need Attention!");
+                if (lblSubtitleCritical != null) {
+                    lblSubtitleCritical.setText("Need Attention!");
+                }
+                // ✅ NEW: Show blood group names sa lblCriticalDetails
+                if (lblCriticalDetails != null) {
+                    lblCriticalDetails.setText(criticalList.toString());
+                    lblCriticalDetails.setVisible(true);
+                    lblCriticalDetails.setForeground(new Color(255, 200, 200)); // Light red
+                }
             } else {
+                // ✅ ALL GOOD: Hide details, show blue
                 lblValueCritical.setForeground(new Color(59, 130, 246));
-                if (lblSubtitleCritical != null) lblSubtitleCritical.setText("All Good!");
+                if (lblSubtitleCritical != null) {
+                    lblSubtitleCritical.setText("All Good!");
+                }
+                if (lblCriticalDetails != null) {
+                    lblCriticalDetails.setText("");
+                    lblCriticalDetails.setVisible(false);
+                }
             }
         }
         rs3.close(); pst3.close();
         
-        // 4. Recent Donations (Last 7 Days)
+        // 4. Recent Donations (Last 7 Days) ✅
         String sql4 = "SELECT COUNT(*) as recent FROM donors WHERE donation_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
         PreparedStatement pst4 = con.prepareStatement(sql4);
         ResultSet rs4 = pst4.executeQuery();
@@ -116,6 +151,10 @@ private void loadDashboardStats() {
         if (lblValueUnits != null) lblValueUnits.setText("0");
         if (lblValueCritical != null) lblValueCritical.setText("0");
         if (lblValueRecent != null) lblValueRecent.setText("0");
+        if (lblCriticalDetails != null) {
+            lblCriticalDetails.setText("");
+            lblCriticalDetails.setVisible(false);
+        }
     }
 }
 
@@ -133,41 +172,57 @@ private void refreshStats() {
 private void setupSidebarButtons() {
     setSidebarActive(btnDashboard);
 
-    // ✅ DASHBOARD BUTTON: Highlight lang, HUWAG mag-oopen ng bago!
+    // 🔘 DASHBOARD: Highlight lang
     btnDashboard.addActionListener(e -> setSidebarActive(btnDashboard));
     
-    // ✅ REGISTER DONOR: Sarado current → Buksan bago
+    // 🔘 REGISTER DONOR
     btnRegister.addActionListener(e -> {
         this.dispose();
         new RegisterDonorForm().setVisible(true);
     });
     
-    // ✅ VIEW DONORS
+    // 🔘 VIEW DONORS
     btnViewDonors.addActionListener(e -> {
         this.dispose();
         new ViewDonorsForm().setVisible(true);
     });
     
-    // ✅ INVENTORY
+    // 🔘 INVENTORY
     btnInventory.addActionListener(e -> {
         this.dispose();
         new InventoryForm().setVisible(true);
     });
     
-// ✅ KEEP THIS ONE (mas clean):
-btnLogout.addActionListener(e -> {
-    int confirm = JOptionPane.showConfirmDialog(this, 
-        "Are you sure you want to logout?", "Confirm Logout", 
-        JOptionPane.YES_NO_OPTION);
-    
-    if (confirm == JOptionPane.YES_OPTION) {
-        // ✅ Clear session before logout
-        com.bloodlink.utils.UserSession.clearSession();
-        
+    // 🔘 REPORTS & ANALYTICS ✨ NEW
+    btnReports.addActionListener(e -> {
         this.dispose();
-        new LoginForm().setVisible(true);
-    }
-});
+        new ReportsForm().setVisible(true);
+    });
+    
+    // 🔘 SYSTEM SETTINGS ✨ NEW (Admin Only Check)
+    btnSettings.addActionListener(e -> {
+        if ("Admin".equalsIgnoreCase(UserSession.currentRole)) {
+            this.dispose();
+            new SettingsForm().setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "⛔ Access Denied!\nSystem Settings are for Admins only.", 
+                "Unauthorized", JOptionPane.WARNING_MESSAGE);
+        }
+    });
+    
+    // 🔘 LOGOUT
+    btnLogout.addActionListener(e -> {
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to logout?", "Confirm Logout", 
+            JOptionPane.YES_NO_OPTION);
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            UserSession.clearSession();
+            this.dispose();
+            new LoginForm().setVisible(true);
+        }
+    });
 }
 
 
@@ -312,16 +367,18 @@ public void dispose() {
         logoLabel11 = new customcontrols.LogoLabel();
         lblValueUnits = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
         glassPanel6 = new customcontrols.GlassPanel();
+        jLabel2 = new javax.swing.JLabel();
         lblValueRecent = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         logoLabel13 = new customcontrols.LogoLabel();
         redGlassPanel1 = new customcontrols.RedGlassPanel();
-        lblSubtitleCritical = new javax.swing.JLabel();
+        lblCriticalDetails = new javax.swing.JLabel();
         logoLabel12 = new customcontrols.LogoLabel();
         lblValueCritical = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        lblSubtitleCritical = new javax.swing.JLabel();
         glassPanel3 = new customcontrols.GlassPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -368,26 +425,32 @@ public void dispose() {
         lblValueUnits.setText("no.");
         glassPanel7.add(lblValueUnits, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 90, 110));
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Blood Inventory");
-        glassPanel7.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 140, -1));
+        glassPanel7.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 280, -1));
 
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Units");
-        glassPanel7.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, 77, -1));
+        jLabel6.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel6.setText("Units");
+        glassPanel7.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 77, -1));
 
         getContentPane().add(glassPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 130, 350, 190));
 
         glassPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Last 7 Days");
+        glassPanel6.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 77, -1));
 
         lblValueRecent.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
         lblValueRecent.setForeground(new java.awt.Color(255, 255, 255));
         lblValueRecent.setText("no.");
         glassPanel6.add(lblValueRecent, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 90, 110));
 
+        jLabel8.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Recent Donations");
-        glassPanel6.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 100, -1));
+        glassPanel6.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 290, -1));
 
         logoLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/backdropicon.png"))); // NOI18N
         logoLabel13.setText("logoLabel10");
@@ -395,12 +458,13 @@ public void dispose() {
 
         getContentPane().add(glassPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 350, 350, 190));
 
-        redGlassPanel1.setPreferredSize(new java.awt.Dimension(350, 190));
+        redGlassPanel1.setPreferredSize(new java.awt.Dimension(490, 210));
         redGlassPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblSubtitleCritical.setForeground(new java.awt.Color(255, 255, 255));
-        lblSubtitleCritical.setText("jLabel7");
-        redGlassPanel1.add(lblSubtitleCritical, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 120, -1));
+        lblCriticalDetails.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        lblCriticalDetails.setForeground(new java.awt.Color(255, 255, 255));
+        lblCriticalDetails.setText("Details ");
+        redGlassPanel1.add(lblCriticalDetails, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 300, -1));
 
         logoLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/warning 2.png"))); // NOI18N
         logoLabel12.setText("logoLabel10");
@@ -409,28 +473,34 @@ public void dispose() {
         lblValueCritical.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
         lblValueCritical.setForeground(new java.awt.Color(255, 255, 255));
         lblValueCritical.setText("no.");
-        redGlassPanel1.add(lblValueCritical, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, 90, 110));
+        redGlassPanel1.add(lblValueCritical, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 90, 110));
 
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Low Stock Alert");
-        redGlassPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 100, -1));
+        redGlassPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 290, -1));
 
-        getContentPane().add(redGlassPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 350, 340, 190));
+        lblSubtitleCritical.setForeground(new java.awt.Color(255, 255, 255));
+        lblSubtitleCritical.setText("NOTIFICATION ");
+        redGlassPanel1.add(lblSubtitleCritical, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 120, -1));
+
+        getContentPane().add(redGlassPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 350, 350, 190));
 
         glassPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
         jLabel3.setText("Total Donors");
-        glassPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(16, 21, 77, -1));
+        glassPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 220, -1));
 
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
         jLabel4.setText("Registered");
-        glassPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 77, -1));
+        glassPanel3.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 77, -1));
 
         lblValueDonors.setFont(new java.awt.Font("Segoe UI", 1, 48)); // NOI18N
         lblValueDonors.setForeground(new java.awt.Color(255, 255, 255));
         lblValueDonors.setText("no.");
-        glassPanel3.add(lblValueDonors, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 90, 110));
+        glassPanel3.add(lblValueDonors, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 70, 90, 110));
 
         logoLabel14.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/donation icon.png"))); // NOI18N
         logoLabel14.setText("logoLabel10");
@@ -518,6 +588,7 @@ public void dispose() {
         SidePanel.add(btnReports, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 310, 250, 41));
 
         btnSettings.setText("           System Settings");
+        btnSettings.addActionListener(this::btnSettingsActionPerformed);
         SidePanel.add(btnSettings, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 357, 250, 41));
 
         btnLogout.setText("           Logout");
@@ -574,6 +645,10 @@ public void dispose() {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnRegisterActionPerformed
 
+    private void btnSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSettingsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnSettingsActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -600,7 +675,9 @@ public void dispose() {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel lblCriticalDetails;
     private javax.swing.JLabel lblDateTime;
     private CustomComponents.RoleBadge lblRoleBadge;
     private javax.swing.JLabel lblSubtitleCritical;

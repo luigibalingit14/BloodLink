@@ -117,55 +117,61 @@ private void setupHeader() {
  * Setup sidebar button actions for ViewDonorsForm
  */
 private void setupViewDonorsSidebar() {
-    // ✅ Highlight "View Donors" button (since nandito ka na)
     setSidebarActive(btnViewDonors);
 
-    // 🔘 Dashboard Button
+    // 🔘 DASHBOARD
     btnDashboard.addActionListener(e -> {
         this.dispose();
         new DashboardForm().setVisible(true);
     });
-
-    // 🔘 Register Donor Button
+    
+    // 🔘 REGISTER DONOR
     btnRegister.addActionListener(e -> {
         this.dispose();
         new RegisterDonorForm().setVisible(true);
     });
-
-    // 🔘 View Donors Button (Stay/Refresh)
+    
+    // 🔘 VIEW DONORS: Highlight lang
     btnViewDonors.addActionListener(e -> {
         setSidebarActive(btnViewDonors);
         loadDonorsToTable(); // Optional: Refresh table
     });
-
-    // 🔘 Blood Inventory
+    
+    // 🔘 INVENTORY
     btnInventory.addActionListener(e -> {
         this.dispose();
         new InventoryForm().setVisible(true);
     });
-
-    // 🔘 Reports & Settings (Placeholder)
-    btnReports.addActionListener(e -> 
-        JOptionPane.showMessageDialog(this, "📊 Reports module coming soon!", 
-            "Under Development", JOptionPane.INFORMATION_MESSAGE));
     
-    btnSettings.addActionListener(e -> 
-        JOptionPane.showMessageDialog(this, "⚙️ Settings module coming soon!", 
-            "Under Development", JOptionPane.INFORMATION_MESSAGE));
-
-   // 🔘 Logout
-    btnLogout.addActionListener(e -> {
-    int confirm = JOptionPane.showConfirmDialog(this, 
-        "Logout from BloodLink?", "Confirm", JOptionPane.YES_NO_OPTION);
-    if (confirm == JOptionPane.YES_OPTION) {
-        // ✅ Clear session before logout
-        UserSession.clearSession();  // ← ← ← DAGDAGAN MO ITO!
-        
+    // 🔘 REPORTS & ANALYTICS ✨ NEW
+    btnReports.addActionListener(e -> {
         this.dispose();
-        new LoginForm().setVisible(true);
-    }
-});
-}    
+        new ReportsForm().setVisible(true);
+    });
+    
+    // 🔘 SYSTEM SETTINGS ✨ NEW (Admin Only)
+    btnSettings.addActionListener(e -> {
+        if ("Admin".equalsIgnoreCase(UserSession.currentRole)) {
+            this.dispose();
+            new SettingsForm().setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "⛔ Access Denied!\nSystem Settings are for Admins only.", 
+                "Unauthorized", JOptionPane.WARNING_MESSAGE);
+        }
+    });
+    
+    // 🔘 LOGOUT
+    btnLogout.addActionListener(e -> {
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Logout from BloodLink?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            UserSession.clearSession();
+            this.dispose();
+            new LoginForm().setVisible(true);
+        }
+    });
+}   
     
 
 private void loadDonorsToTable() {
@@ -410,6 +416,7 @@ public void dispose() {
         jScrollPane1 = new javax.swing.JScrollPane();
         tblDonors = new customcontrols.GlassTable();
         glassPanel3 = new customcontrols.GlassPanel();
+        logoLabel13 = new customcontrols.LogoLabel();
         btnSearch = new CustomComponents.RoundedButton();
         btnRefresh = new CustomComponents.RoundedButton();
         txtSearch = new customcontrols.ModernTextbox();
@@ -462,9 +469,16 @@ public void dispose() {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         tblDonors.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -474,6 +488,10 @@ public void dispose() {
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 252, 870, 370));
 
         glassPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        logoLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/backdropicon.png"))); // NOI18N
+        logoLabel13.setText("logoLabel4");
+        glassPanel3.add(logoLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 80, 1030, 580));
 
         btnSearch.setText("Search");
         btnSearch.addActionListener(this::btnSearchActionPerformed);
@@ -679,6 +697,7 @@ public void dispose() {
     private javax.swing.JLabel lblWelcome;
     private customcontrols.LogoLabel logoLabel1;
     private customcontrols.LogoLabel logoLabel10;
+    private customcontrols.LogoLabel logoLabel13;
     private customcontrols.LogoLabel logoLabel2;
     private customcontrols.LogoLabel logoLabel3;
     private customcontrols.LogoLabel logoLabel4;

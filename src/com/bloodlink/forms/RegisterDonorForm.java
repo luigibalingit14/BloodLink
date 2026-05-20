@@ -121,53 +121,59 @@ private void startClock() {
     /**
      * Setup sidebar button actions for RegisterDonorForm
      */
-    private void setupRegisterSidebar() {
-        // ✅ Highlight "Register Donor" button (since nandito ka na)
-        setSidebarActive(btnRegister);
+private void setupRegisterSidebar() {
+    setSidebarActive(btnRegister);
 
-        // 🔘 Dashboard Button
-        btnDashboard.addActionListener(e -> {
-            this.dispose();
-            new DashboardForm().setVisible(true);
-        });
-
-        // 🔘 Register Donor Button (Stay/Refresh)
-        btnRegister.addActionListener(e -> setSidebarActive(btnRegister));
-
-        // 🔘 View Donors
-        btnViewDonors.addActionListener(e -> {
-            this.dispose();
-            new ViewDonorsForm().setVisible(true);
-        });
-
-        // 🔘 Blood Inventory
-        btnInventory.addActionListener(e -> {
-            this.dispose();
-            new InventoryForm().setVisible(true);
-        });
-
-        // 🔘 Reports & Settings (Placeholder)
-        btnReports.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "📊 Reports module coming soon!", 
-                "Under Development", JOptionPane.INFORMATION_MESSAGE));
-        
-        btnSettings.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "⚙️ Settings module coming soon!", 
-                "Under Development", JOptionPane.INFORMATION_MESSAGE));
-
- // 🔘 Logout
-btnLogout.addActionListener(e -> {
-    int confirm = JOptionPane.showConfirmDialog(this, 
-        "Logout from BloodLink?", "Confirm", JOptionPane.YES_NO_OPTION);
-    if (confirm == JOptionPane.YES_OPTION) {
-        // ✅ Clear session before logout
-        UserSession.clearSession();
-        
+    // 🔘 DASHBOARD
+    btnDashboard.addActionListener(e -> {
         this.dispose();
-        new LoginForm().setVisible(true);
-    }
-});
-}   
+        new DashboardForm().setVisible(true);
+    });
+    
+    // 🔘 REGISTER DONOR: Highlight lang
+    btnRegister.addActionListener(e -> setSidebarActive(btnRegister));
+    
+    // 🔘 VIEW DONORS
+    btnViewDonors.addActionListener(e -> {
+        this.dispose();
+        new ViewDonorsForm().setVisible(true);
+    });
+    
+    // 🔘 INVENTORY
+    btnInventory.addActionListener(e -> {
+        this.dispose();
+        new InventoryForm().setVisible(true);
+    });
+    
+    // 🔘 REPORTS & ANALYTICS ✨ NEW
+    btnReports.addActionListener(e -> {
+        this.dispose();
+        new ReportsForm().setVisible(true);
+    });
+    
+    // 🔘 SYSTEM SETTINGS ✨ NEW (Admin Only)
+    btnSettings.addActionListener(e -> {
+        if ("Admin".equalsIgnoreCase(UserSession.currentRole)) {
+            this.dispose();
+            new SettingsForm().setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "⛔ Access Denied!\nSystem Settings are for Admins only.", 
+                "Unauthorized", JOptionPane.WARNING_MESSAGE);
+        }
+    });
+    
+    // 🔘 LOGOUT
+    btnLogout.addActionListener(e -> {
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Logout from BloodLink?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            UserSession.clearSession();
+            this.dispose();
+            new LoginForm().setVisible(true);
+        }
+    });
+}
     
     
     
@@ -207,6 +213,7 @@ btnLogout.addActionListener(e -> {
         dateChooser = new com.toedter.calendar.JDateChooser();
         logoLabel11 = new customcontrols.LogoLabel();
         btnBack = new CustomComponents.SidebarButton();
+        logoLabel13 = new customcontrols.LogoLabel();
         glassPanel1 = new customcontrols.GlassPanel();
         lblWelcome = new javax.swing.JLabel();
         lblRoleBadge = new CustomComponents.RoleBadge();
@@ -306,13 +313,17 @@ btnLogout.addActionListener(e -> {
 
         logoLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/iconback.png"))); // NOI18N
         logoLabel11.setText("logoLabel10");
-        RegistrationPanel.add(logoLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 460, 30, 40));
+        RegistrationPanel.add(logoLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 470, 30, 40));
 
         btnBack.setForeground(new java.awt.Color(255, 255, 255));
         btnBack.setText("       Back to Dashboard");
         btnBack.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         btnBack.addActionListener(this::btnBackActionPerformed);
-        RegistrationPanel.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 460, 180, 40));
+        RegistrationPanel.add(btnBack, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 470, 180, 40));
+
+        logoLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/backdropicon.png"))); // NOI18N
+        logoLabel13.setText("logoLabel4");
+        RegistrationPanel.add(logoLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 30, 1040, 600));
 
         getContentPane().add(RegistrationPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 110, 730, 530));
 
@@ -618,6 +629,7 @@ private void clearForm() {
     private customcontrols.LogoLabel logoLabel1;
     private customcontrols.LogoLabel logoLabel10;
     private customcontrols.LogoLabel logoLabel11;
+    private customcontrols.LogoLabel logoLabel13;
     private customcontrols.LogoLabel logoLabel2;
     private customcontrols.LogoLabel logoLabel3;
     private customcontrols.LogoLabel logoLabel4;

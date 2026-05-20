@@ -274,7 +274,7 @@
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="540" y="460" width="30" height="40"/>
+              <AbsoluteConstraints x="540" y="470" width="30" height="40"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -291,7 +291,20 @@
           </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-              <AbsoluteConstraints x="530" y="460" width="180" height="40"/>
+              <AbsoluteConstraints x="530" y="470" width="180" height="40"/>
+            </Constraint>
+          </Constraints>
+        </Component>
+        <Component class="customcontrols.LogoLabel" name="logoLabel13">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/images/backdropicon.png"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="logoLabel4"/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
+              <AbsoluteConstraints x="70" y="30" width="1040" height="600"/>
             </Constraint>
           </Constraints>
         </Component>

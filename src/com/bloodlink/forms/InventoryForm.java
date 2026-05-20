@@ -71,25 +71,59 @@ public class InventoryForm extends javax.swing.JFrame {
         activeBtn.setActive(true);
     }
 
-    private void setupInventorySidebar() {
-        setSidebarActive(btnInventory);
+private void setupInventorySidebar() {
+    setSidebarActive(btnInventory);
 
-        btnDashboard.addActionListener(e -> { this.dispose(); new DashboardForm().setVisible(true); });
-        btnRegister.addActionListener(e -> { this.dispose(); new RegisterDonorForm().setVisible(true); });
-        btnViewDonors.addActionListener(e -> { this.dispose(); new ViewDonorsForm().setVisible(true); });
-        btnInventory.addActionListener(e -> setSidebarActive(btnInventory));
-        
-        btnReports.addActionListener(e -> JOptionPane.showMessageDialog(this, "📊 Reports coming soon!"));
-        btnSettings.addActionListener(e -> JOptionPane.showMessageDialog(this, "⚙️ Settings coming soon!"));
-        
-        btnLogout.addActionListener(e -> {
-            if (JOptionPane.showConfirmDialog(this, "Logout?", "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                UserSession.clearSession();
-                this.dispose();
-                new LoginForm().setVisible(true);
-            }
-        });
-    }
+    // 🔘 DASHBOARD
+    btnDashboard.addActionListener(e -> {
+        this.dispose();
+        new DashboardForm().setVisible(true);
+    });
+    
+    // 🔘 REGISTER DONOR
+    btnRegister.addActionListener(e -> {
+        this.dispose();
+        new RegisterDonorForm().setVisible(true);
+    });
+    
+    // 🔘 VIEW DONORS
+    btnViewDonors.addActionListener(e -> {
+        this.dispose();
+        new ViewDonorsForm().setVisible(true);
+    });
+    
+    // 🔘 INVENTORY: Highlight lang
+    btnInventory.addActionListener(e -> setSidebarActive(btnInventory));
+    
+    // 🔘 REPORTS & ANALYTICS ✨ NEW
+    btnReports.addActionListener(e -> {
+        this.dispose();
+        new ReportsForm().setVisible(true);
+    });
+    
+    // 🔘 SYSTEM SETTINGS ✨ NEW (Admin Only)
+    btnSettings.addActionListener(e -> {
+        if ("Admin".equalsIgnoreCase(UserSession.currentRole)) {
+            this.dispose();
+            new SettingsForm().setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "⛔ Access Denied!\nSystem Settings are for Admins only.", 
+                "Unauthorized", JOptionPane.WARNING_MESSAGE);
+        }
+    });
+    
+    // 🔘 LOGOUT
+    btnLogout.addActionListener(e -> {
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Logout from BloodLink?", "Confirm", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            UserSession.clearSession();
+            this.dispose();
+            new LoginForm().setVisible(true);
+        }
+    });
+}
 
     private void setupHeader() {
         lblWelcome.setText(" Welcome, " + UserSession.currentUser + "!");
@@ -214,6 +248,7 @@ public class InventoryForm extends javax.swing.JFrame {
         lblTitle = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblInventory = new customcontrols.GlassTable();
+        logoLabel13 = new customcontrols.LogoLabel();
         btnRefresh = new CustomComponents.RoundedButton();
         logoLabel10 = new customcontrols.LogoLabel();
         btnBack = new CustomComponents.SidebarButton();
@@ -243,6 +278,7 @@ public class InventoryForm extends javax.swing.JFrame {
         MainPanel = new customcontrols.ModernLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("BloodLink - Blood Inventory");
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -271,11 +307,23 @@ public class InventoryForm extends javax.swing.JFrame {
             new String [] {
                 "Blood Group", "Available Units", "Status"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tblInventory.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jScrollPane1.setViewportView(tblInventory);
 
         glassPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 760, 380));
+
+        logoLabel13.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/backdropicon.png"))); // NOI18N
+        logoLabel13.setText("logoLabel4");
+        glassPanel3.add(logoLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 110, 1040, 600));
 
         btnRefresh.setText("Refresh");
         btnRefresh.addActionListener(this::btnRefreshActionPerformed);
@@ -461,6 +509,7 @@ public class InventoryForm extends javax.swing.JFrame {
     private javax.swing.JLabel lblWelcome;
     private customcontrols.LogoLabel logoLabel1;
     private customcontrols.LogoLabel logoLabel10;
+    private customcontrols.LogoLabel logoLabel13;
     private customcontrols.LogoLabel logoLabel2;
     private customcontrols.LogoLabel logoLabel3;
     private customcontrols.LogoLabel logoLabel4;
